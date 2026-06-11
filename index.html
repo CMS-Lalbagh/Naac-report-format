@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NAAC Activity Report Tool</title>
+<style>
+  :root {
+    --navy: #1F3864;
+    --blue: #2E75B6;
+    --blue-mid: #4A90D4;
+    --steel: #EEF4FB;
+    --steel-dark: #D6E4F0;
+    --accent: #E8A020;
+    --success: #2D8A4E;
+    --text: #1a1f2e;
+    --muted: #6b7a99;
+    --border: #C8D9EC;
+    --white: #ffffff;
+    --danger: #C0392B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f0f4fa; color: var(--text); min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--navy);
+    padding: 0 28px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(31,56,100,0.3);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .topbar-title { color: #fff; font-size: 15px; font-weight: 600; }
+  .topbar-sub { color: #9DC3E6; font-size: 12px; }
+  .topbar-actions { display: flex; gap: 10px; }
+  .btn-top {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all .18s;
+  }
+  .btn-reset { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+  .btn-reset:hover { background: rgba(255,255,255,0.18); }
+  .btn-export-word { background: var(--blue); color: #fff; }
+  .btn-export-word:hover { background: var(--blue-mid); }
+  .btn-export-word:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; height: calc(100vh - 58px); overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--navy);
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #4A6FA5;
+    text-transform: uppercase;
+    padding: 0 20px 10px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 20px;
+    cursor: pointer;
+    transition: background .15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.07); }
+  .sidebar-item.active { background: rgba(46,117,182,0.25); border-left-color: var(--accent); }
+  .sidebar-item.completed .step-dot { background: var(--success); }
+  .step-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+    transition: background .2s;
+  }
+  .sidebar-item.active .step-dot { background: var(--accent); color: #fff; }
+  .sidebar-item.completed .step-dot::after { content: "✓"; }
+  .sidebar-item.completed .step-dot { font-size: 13px; color: #fff; }
+  .step-info { flex: 1; }
+  .step-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.75); line-height: 1.3; }
+  .sidebar-item.active .step-name { color: #fff; }
+  .step-desc { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+  .section-header {
+    margin-bottom: 24px;
+  }
+  .section-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--blue); background: var(--steel); padding: 4px 10px; border-radius: 4px;
+    display: inline-block; margin-bottom: 8px;
+  }
+  .section-title { font-size: 20px; font-weight: 700; color: var(--navy); }
+  .section-subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── CARDS ── */
+  .card { background: #fff; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 16px; overflow: hidden; }
+  .card-title {
+    background: var(--steel);
+    padding: 11px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-body { padding: 18px; display: grid; gap: 14px; }
+  .card-body.col2 { grid-template-columns: 1fr 1fr; }
+  .card-body.col3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── FORM ── */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 600; color: var(--navy); }
+  label span.req { color: var(--danger); margin-left: 2px; }
+  label span.hint { font-weight: 400; color: var(--muted); font-style: italic; font-size: 11px; display: block; margin-top: 1px; }
+  input[type=text], input[type=date], input[type=number], input[type=email],
+  select, textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--text);
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(46,117,182,0.12);
+  }
+  textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+  .cb-item { display: flex; align-items: center; gap: 6px; background: var(--steel); padding: 6px 12px; border-radius: 6px; cursor: pointer; border: 1.5px solid transparent; transition: all .15s; }
+  .cb-item:hover { border-color: var(--blue-mid); }
+  .cb-item input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--blue); }
+  .cb-item span { font-size: 12px; font-weight: 500; color: var(--navy); }
+  .cb-item.checked { background: rgba(46,117,182,0.12); border-color: var(--blue); }
+
+  /* ── TABLE CHECKLIST ── */
+  .checklist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .checklist-table th { background: var(--steel); color: var(--navy); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 9px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+  .checklist-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .checklist-table tr:last-child td { border-bottom: none; }
+  .checklist-table tr:nth-child(even) td { background: #fafcff; }
+  .checklist-table select, .checklist-table input[type=text] { padding: 5px 8px; font-size: 12px; }
+
+  /* ── NAVIGATION ── */
+  .nav-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 20px; border-top: 2px solid var(--border);
+  }
+  .btn-nav {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all .18s;
+  }
+  .btn-prev { background: var(--steel); color: var(--navy); border: 1.5px solid var(--border); }
+  .btn-prev:hover { background: var(--steel-dark); }
+  .btn-next { background: var(--blue); color: #fff; }
+  .btn-next:hover { background: #1a5fa0; }
+  .btn-submit { background: var(--success); color: #fff; padding: 11px 28px; font-size: 15px; }
+  .btn-submit:hover { background: #236b3c; }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── PROGRESS ── */
+  .progress-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .progress-bar { flex: 1; height: 5px; background: var(--steel-dark); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-mid)); border-radius: 10px; transition: width .4s ease; }
+  .progress-text { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* ── NAAC ACCORDION ── */
+  .attr-accordion { display: flex; flex-direction: column; gap: 10px; }
+
+  .attr-block { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); }
+  .attr-block-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; cursor: pointer; user-select: none;
+    transition: background .15s;
+  }
+  .attr-block-header:hover { filter: brightness(0.97); }
+  .attr-block.input-block .attr-block-header   { background: #EEF4FB; border-bottom: 1.5px solid var(--border); }
+  .attr-block.process-block .attr-block-header { background: #E8F0FB; border-bottom: 1.5px solid var(--border); }
+  .attr-block.outcome-block .attr-block-header { background: #E8F6EE; border-bottom: 1.5px solid var(--border); }
+
+  .attr-block-header.open { border-bottom: 1.5px solid var(--border); }
+  .attr-badge {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  }
+  .input-block .attr-badge   { background: #1F3864; color: #fff; }
+  .process-block .attr-badge { background: #2E75B6; color: #fff; }
+  .outcome-block .attr-badge { background: #2D8A4E; color: #fff; }
+
+  .attr-block-title { font-size: 13px; font-weight: 700; color: var(--navy); flex: 1; }
+  .attr-block-meta  { font-size: 11px; color: var(--muted); }
+  .attr-chevron { font-size: 12px; color: var(--muted); transition: transform .2s; }
+  .attr-chevron.open { transform: rotate(180deg); }
+
+  .attr-selected-summary {
+    display: flex; flex-wrap: wrap; gap: 5px; padding: 0 16px 0 0;
+  }
+  .attr-mini-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+    background: rgba(46,117,182,0.15); color: var(--navy); white-space: nowrap;
+  }
+  .input-block   .attr-mini-tag { background: rgba(31,56,100,0.12); }
+  .process-block .attr-mini-tag { background: rgba(46,117,182,0.15); }
+  .outcome-block .attr-mini-tag { background: rgba(45,138,78,0.15); color: #1a5a30; }
+
+  .attr-block-body { display: none; padding: 16px; background: #fff; }
+  .attr-block-body.open { display: block; }
+
+  .attr-num-row {
+    display: flex; align-items: flex-start; gap: 14px; padding: 11px 0;
+    border-bottom: 1px solid #eef2fa;
+  }
+  .attr-num-row:last-child { border-bottom: none; padding-bottom: 4px; }
+
+  .attr-num-badge {
+    font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 6px;
+    white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+    min-width: 60px; text-align: center;
+  }
+  .input-block .attr-num-badge   { background: #EEF4FB; color: #1F3864; border: 1px solid #C8D9EC; }
+  .process-block .attr-num-badge { background: #E8F0FB; color: #1F4080; border: 1px solid #C0CCE8; }
+  .outcome-block .attr-num-badge { background: #E8F6EE; color: #1a5a30; border: 1px solid #A8D8B8; }
+
+  .attr-num-content { flex: 1; }
+  .attr-num-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+  .attr-num-desc  { font-size: 11px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+
+  /* Custom multi-select dropdown */
+  .ms-wrapper { position: relative; }
+  .ms-trigger {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 7px;
+    background: #fff; cursor: pointer; font-size: 12px; color: var(--text);
+    min-height: 38px; flex-wrap: wrap; gap: 5px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .ms-trigger:hover { border-color: var(--blue-mid); }
+  .ms-trigger.open  { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(46,117,182,0.12); }
+  .ms-trigger-placeholder { color: var(--muted); font-size: 12px; }
+  .ms-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    background: rgba(46,117,182,0.12); color: var(--navy);
+  }
+  .input-block   .ms-tag { background: rgba(31,56,100,0.1);  color: #1F3864; }
+  .process-block .ms-tag { background: rgba(46,117,182,0.13); color: #1a4080; }
+  .outcome-block .ms-tag { background: rgba(45,138,78,0.12);  color: #1a5a30; }
+  .ms-tag-x { cursor: pointer; font-size: 13px; line-height: 1; color: inherit; opacity: 0.6; }
+  .ms-tag-x:hover { opacity: 1; }
+  .ms-chevron { flex-shrink: 0; font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+  .ms-dropdown {
+    display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: #fff; border: 1.5px solid var(--blue); border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(31,56,100,0.14); z-index: 50;
+    max-height: 240px; overflow-y: auto;
+  }
+  .ms-dropdown.open { display: block; }
+  .ms-opt {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; cursor: pointer; font-size: 12px; color: var(--text);
+    transition: background .12s; border-bottom: 1px solid #f0f4fb;
+  }
+  .ms-opt:last-child { border-bottom: none; }
+  .ms-opt:hover { background: var(--steel); }
+  .ms-opt.selected { background: var(--steel); }
+  .ms-opt input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--blue); flex-shrink: 0; cursor: pointer; }
+  .ms-opt-label { flex: 1; line-height: 1.4; }
+  .ms-opt-label strong { display: block; font-size: 12px; color: var(--navy); }
+  .ms-opt-label span   { font-size: 11px; color: var(--muted); }
+
+  .attr-sel-count {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    background: var(--blue); color: #fff; margin-left: 6px;
+  }
+  .attr-sel-count.zero { background: var(--border); color: var(--muted); }
+
+  .naac-legend {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; padding: 10px 14px;
+    background: var(--steel); border-radius: 8px; border: 1px solid var(--border);
+  }
+  .naac-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--navy); font-weight: 600; }
+  .naac-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* selected summary bar */
+  .attr-summary-bar {
+    padding: 12px 16px; background: var(--steel); border-radius: 8px;
+    border: 1px solid var(--border); margin-top: 16px;
+  }
+  .attr-summary-bar-label { font-size: 11px; font-weight: 700; color: var(--navy); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .attr-summary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .attr-sum-tag {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600;
+  }
+  .attr-sum-tag.inp { background: #1F3864; color: #fff; }
+  .attr-sum-tag.proc { background: #2E75B6; color: #fff; }
+  .attr-sum-tag.out  { background: #2D8A4E; color: #fff; }
+  .attr-sum-empty { font-size: 12px; color: var(--muted); font-style: italic; }
+
+  /* ── EXPORT OVERLAY ── */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(15,25,50,0.65); z-index: 200; align-items: center; justify-content: center; }
+  .overlay.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; padding: 36px; max-width: 440px; width: 90%;
+    text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-icon { font-size: 44px; margin-bottom: 16px; }
+  .modal-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .modal-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .spinner { display: inline-block; width: 36px; height: 36px; border: 4px solid var(--steel-dark); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
+  .btn-modal { padding: 9px 22px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn-modal-primary { background: var(--blue); color: #fff; }
+  .btn-modal-primary:hover { background: #1a5fa0; }
+  .btn-modal-secondary { background: var(--steel); color: var(--navy); border: 1.5px solid var(--border); }
+
+  /* ── RATING INPUT ── */
+  .rating-row { display: flex; gap: 8px; align-items: center; }
+  .rating-btn { width: 36px; height: 36px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; font-weight: 700; font-size: 13px; cursor: pointer; transition: all .15s; color: var(--navy); }
+  .rating-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* ── SIGNATURE ── */
+  .sig-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .sig-block { border: 1px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .sig-block label { display: block; font-size: 11px; font-weight: 700; color: var(--navy); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sig-block input { text-align: center; }
+
+  /* step visibility */
+  .step-section { display: none; }
+  .step-section.active { display: block; }
+
+  /* success screen */
+  .success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 64px; margin-bottom: 20px; }
+  .success-title { font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .success-sub { font-size: 15px; color: var(--muted); max-width: 440px; line-height: 1.6; margin-bottom: 32px; }
+  .download-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .btn-dl { padding: 13px 28px; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: all .2s; display: flex; align-items: center; gap: 10px; }
+  .btn-dl-word { background: var(--blue); color: #fff; }
+  .btn-dl-word:hover { background: #1a5fa0; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="topbar-badge">IQAC</span>
+        <span class="topbar-title">Activity Report Tool</span>
+      </div>
+      <div class="topbar-sub">NAAC Binary Accreditation — 10 Attributes Framework</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-top btn-reset" onclick="confirmReset()">↺ Reset Form</button>
+    <button class="btn-top btn-export-word" id="quickExportBtn" onclick="quickExport()" disabled>⬇ Export Word</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-label">Form Sections</div>
+    <!-- steps injected by JS -->
+  </nav>
+
+  <!-- MAIN AREA -->
+  <main class="main" id="mainArea">
+
+    <!-- PROGRESS -->
+    <div class="progress-row" id="progressRow">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:11%"></div></div>
+      <div class="progress-text" id="progressText">Section 1 of 9</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 1: INSTITUTION & EVENT ID
+    ════════════════════════════════════════════════ -->
+    <div class="step-section active" id="step1">
+      <div class="section-header">
+        <span class="section-tag">Section A</span>
+        <div class="section-title">Institutional & Event Identification</div>
+        <div class="section-subtitle">Basic details for IQAC records and DVV verification</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏛 Institution Details</div>
+        <div class="card-body col2">
+          <div class="field full"><label>Institution Name <span class="req">*</span></label><input type="text" id="institutionName" placeholder="e.g. Jain University, Bengaluru"/></div>
+          <div class="field"><label>Campus / School / Faculty</label><input type="text" id="campus" placeholder="e.g. School of Engineering"/></div>
+          <div class="field"><label>Organising Department / Club / Cell <span class="req">*</span></label><input type="text" id="department" placeholder="e.g. Dept. of Computer Science / NSS Cell"/></div>
+          <div class="field"><label>Academic Year <span class="req">*</span></label><input type="text" id="academicYear" placeholder="e.g. 2025–26"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📅 Event Details</div>
+        <div class="card-body col2">
+          <div class="field full"><label>Event Title <span class="req">*</span></label><input type="text" id="eventTitle" placeholder="Full name of the event"/></div>
+          <div class="field full">
+            <label>Event Type <span class="req">*</span></label>
+            <select id="eventType">
+              <option value="">— Select —</option>
+              <option>Guest Lecture</option>
+              <option>Workshop</option>
+              <option>Seminar / Webinar</option>
+              <option>Conference</option>
+              <option>Hackathon</option>
+              <option>Faculty Development Programme (FDP)</option>
+              <option>Cultural Festival</option>
+              <option>Sports Event</option>
+              <option>Community Outreach / UBA</option>
+              <option>Industry Visit</option>
+              <option>Awareness Campaign</option>
+              <option>Technical Fest / Exhibition</option>
+              <option>Alumni Interaction</option>
+              <option>Skill Development Programme</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="startDate"/></div>
+          <div class="field"><label>End Date</label><input type="date" id="endDate"/></div>
+          <div class="field"><label>Duration <span class="hint">Hours / Days</span></label><input type="text" id="duration" placeholder="e.g. 3 hours / 2 days"/></div>
+          <div class="field"><label>Mode</label>
+            <select id="mode"><option value="">— Select —</option><option>Offline</option><option>Online</option><option>Hybrid</option></select>
+          </div>
+          <div class="field full"><label>Venue</label><input type="text" id="venue" placeholder="e.g. Seminar Hall, Block B / Zoom Meeting"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👤 Coordinators</div>
+        <div class="card-body col2">
+          <div class="field"><label>Faculty Coordinator(s)</label><input type="text" id="facultyCoord" placeholder="Name(s) and designation"/></div>
+          <div class="field"><label>Student Coordinator(s)</label><input type="text" id="studentCoord" placeholder="Name(s) and roll number"/></div>
+        </div>
+      </div>
+      <div class="nav-bar"><div></div><button class="btn-nav btn-next" onclick="goTo(2)">Participants & Guest →</button></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 2: PARTICIPATION
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step2">
+      <div class="section-header">
+        <span class="section-tag">Section C</span>
+        <div class="section-title">Participation & Guest / Speaker Profile</div>
+        <div class="section-subtitle">Required for NAAC Attribute 5 (Student Outcomes) and DVV Clarification</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👥 Participant Count</div>
+        <div class="card-body col3">
+          <div class="field"><label>Students</label><input type="number" id="studentsCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Faculty</label><input type="number" id="facultyCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Non-Teaching Staff</label><input type="number" id="ntStaffCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Participants from Other Institutions</label><input type="text" id="externalCount" placeholder="Count and institution names"/></div>
+          <div class="field"><label>Target Audience</label>
+            <select id="targetAudience">
+              <option value="">— Select —</option>
+              <option>Intra-Departmental</option>
+              <option>Intra-University</option>
+              <option>Inter-University</option>
+              <option>Industry Professionals</option>
+              <option>Community / General Public</option>
+            </select>
+          </div>
+          <div class="field"><label>Collaborators / Sponsors</label><input type="text" id="sponsors" placeholder="Name and role (if any)"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎤 Guest / Resource Person Profile</div>
+        <div class="card-body col2">
+          <div class="field"><label>Name</label><input type="text" id="guestName" placeholder="Full name"/></div>
+          <div class="field"><label>Designation</label><input type="text" id="guestDesig" placeholder="e.g. Senior Data Scientist"/></div>
+          <div class="field"><label>Organisation / Institution</label><input type="text" id="guestOrg" placeholder="Current employer or institution"/></div>
+          <div class="field"><label>Topic / Title of Session</label><input type="text" id="guestTopic" placeholder="Title of talk or presentation"/></div>
+          <div class="field full"><label>Brief Profile of Guest <span class="hint">~50 words</span></label><textarea id="guestProfile" rows="3" placeholder="Short bio highlighting relevant expertise..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(1)">← Institution Details</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">NAAC Mapping →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 3: NAAC MAPPING
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step3">
+      <div class="section-header">
+        <span class="section-tag">Section B</span>
+        <div class="section-title">NAAC Attribute & Sub-Attribute Mapping</div>
+        <div class="section-subtitle">Select the specific sub-attributes this event addresses — required for SSR/AQAR and DVV evidence tagging</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 NAAC Binary Accreditation — 10 Attributes with Sub-Indicators</div>
+        <div class="card-body" style="gap:10px;">
+
+          <div class="naac-legend">
+            <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#1F3864;"></div>INPUT Attributes (1–3) — Weightage: 25%</div>
+            <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#2E75B6;"></div>PROCESS Attributes (4–7) — Weightage: 75%</div>
+            <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#2D8A4E;"></div>OUTCOME Attributes (8–10) — Weightage: 75%</div>
+          </div>
+
+          <div class="attr-accordion" id="attrAccordion">
+            <!-- Built by JS -->
+          </div>
+
+          <!-- Summary bar -->
+          <div class="attr-summary-bar">
+            <div class="attr-summary-bar-label">Selected Sub-Attributes</div>
+            <div class="attr-summary-tags" id="attrSummaryTags">
+              <span class="attr-sum-empty">No sub-attributes selected yet — expand an attribute above to select.</span>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;">
+            <div class="field"><label>IQAC Key Indicator / Metric No. <span class="hint">e.g. 3.4.2, 5.1.3</span></label><input type="text" id="metricNo" placeholder="Metric number(s)"/></div>
+            <div class="field"><label>Old 7-Criteria Reference <span class="hint">Optional, for legacy mapping</span></label><input type="text" id="criteriaRef" placeholder="e.g. Criterion 3, KI 3.4"/></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(2)">← Participation</button>
+        <button class="btn-nav btn-next" onclick="goTo(4)">Event Description →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 4: EVENT DESCRIPTION
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step4">
+      <div class="section-header">
+        <span class="section-tag">Section D</span>
+        <div class="section-title">Event Description & Content</div>
+        <div class="section-subtitle">Detailed narrative required for SSR qualitative metrics — minimum 200 words for the report</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="field">
+            <label>Objectives of the Event <span class="req">*</span><span class="hint">State 3–5 clear objectives</span></label>
+            <textarea id="objectives" rows="4" placeholder="1. To expose students to current industry practices...&#10;2. To foster interaction between academia and professionals...&#10;3. To build communication and technical skills..."></textarea>
+          </div>
+          <div class="field">
+            <label>Detailed Event Report <span class="req">*</span><span class="hint">Minimum 200 words — describe preparation, proceedings, key topics, and chronological flow</span></label>
+            <textarea id="detailedReport" rows="9" placeholder="The event commenced at 10:00 AM with an inaugural address by...&#10;The resource person, Dr. [Name], delivered an insightful session on...&#10;Participants actively engaged in..."></textarea>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="wordCount">Words: 0</div>
+          </div>
+          <div class="field">
+            <label>Key Topics / Sessions Covered</label>
+            <textarea id="keyTopics" rows="3" placeholder="Session 1: Introduction to Machine Learning&#10;Session 2: Hands-on Python Workshop&#10;Session 3: Q&A and Networking"></textarea>
+          </div>
+          <div class="field">
+            <label>Methodologies / Pedagogy Used</label>
+            <textarea id="methodology" rows="3" placeholder="e.g. Interactive lecture, hands-on workshop, panel discussion, case study analysis, role-play, live demonstration..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(3)">← NAAC Mapping</button>
+        <button class="btn-nav btn-next" onclick="goTo(5)">Learning Outcomes →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 5: LEARNING OUTCOMES
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step5">
+      <div class="section-header">
+        <span class="section-tag">Section E</span>
+        <div class="section-title">Learning Outcomes & Outcome Mapping</div>
+        <div class="section-subtitle">Critical for NAAC Attributes 5 & 8 — maps event to PO/CO and graduate attributes</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="field">
+            <label>Learning Outcomes / Competencies Gained <span class="hint">Use Bloom's Taxonomy levels where possible</span></label>
+            <textarea id="learningOutcomes" rows="4" placeholder="1. Students will be able to APPLY ML algorithms to real datasets (Apply level)&#10;2. Students will ANALYSE industry-grade code and tools (Analyse level)&#10;3. Participants will EVALUATE ethical considerations in AI (Evaluate level)"></textarea>
+          </div>
+          <div class="field">
+            <label>Programme Outcome (PO) / Course Outcome (CO) Alignment <span class="hint">e.g. PO3, PO6, CO2 — refer to your OBE mapping</span></label>
+            <input type="text" id="poCoMapping" placeholder="e.g. PO1, PO3, PO12, CO2, CO5"/>
+          </div>
+          <div class="field">
+            <label>Graduate Attributes Addressed</label>
+            <div class="checkbox-group" id="gradAttrs">
+              <label class="cb-item"><input type="checkbox" value="Critical Thinking"/><span>Critical Thinking</span></label>
+              <label class="cb-item"><input type="checkbox" value="Communication Skills"/><span>Communication Skills</span></label>
+              <label class="cb-item"><input type="checkbox" value="Ethics & Values"/><span>Ethics & Values</span></label>
+              <label class="cb-item"><input type="checkbox" value="Sustainability"/><span>Sustainability</span></label>
+              <label class="cb-item"><input type="checkbox" value="Global Competence"/><span>Global Competence</span></label>
+              <label class="cb-item"><input type="checkbox" value="Problem Solving"/><span>Problem Solving</span></label>
+              <label class="cb-item"><input type="checkbox" value="Digital Literacy"/><span>Digital Literacy</span></label>
+              <label class="cb-item"><input type="checkbox" value="Leadership"/><span>Leadership</span></label>
+              <label class="cb-item"><input type="checkbox" value="Teamwork & Collaboration"/><span>Teamwork</span></label>
+              <label class="cb-item"><input type="checkbox" value="Research Aptitude"/><span>Research Aptitude</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Industry / Real-World Relevance</label>
+            <textarea id="industryRelevance" rows="3" placeholder="Describe how this event connects to current industry trends, job market demands, or real-world applications..."></textarea>
+          </div>
+          <div class="field">
+            <label>SDG Alignment <span class="hint">UN Sustainable Development Goals (if applicable)</span></label>
+            <input type="text" id="sdgAlignment" placeholder="e.g. SDG 4: Quality Education, SDG 9: Industry Innovation, SDG 17: Partnerships"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(4)">← Event Description</button>
+        <button class="btn-nav btn-next" onclick="goTo(6)">Impact Assessment →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 6: IMPACT
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step6">
+      <div class="section-header">
+        <span class="section-tag">Section F</span>
+        <div class="section-title">Impact Assessment & Quality Indicators</div>
+        <div class="section-subtitle">Evidence of impact is mandatory under NAAC Binary Accreditation — photos alone are insufficient</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="field"><label>Impact on Students / Participants</label><textarea id="impactStudents" rows="3" placeholder="Describe observable changes: skills gained, motivation, awareness, behaviour shift..."></textarea></div>
+          <div class="field"><label>Impact on Faculty / Institution</label><textarea id="impactFaculty" rows="3" placeholder="Curriculum enrichment, research collaboration, new industry linkage, MoU initiated..."></textarea></div>
+          <div class="field"><label>Community / Societal Impact <span class="hint">Relevant for Criterion 3 / Attr-6 outreach activities</span></label><textarea id="impactCommunity" rows="3" placeholder="If applicable — clean village drive, health awareness, women empowerment, etc."></textarea></div>
+          <div class="field"><label>Evidence of Impact Available</label><input type="text" id="evidenceImpact" placeholder="e.g. Pre/post test scores, feedback summary (avg 4.3/5), 3 certifications issued, media coverage in XYZ"/></div>
+          <div class="field"><label>MoU / Collaboration Established</label><input type="text" id="mouDetails" placeholder="Organisation name and nature of collaboration (if any)"/></div>
+          <div class="field"><label>Recommendations / Follow-Up Actions</label><textarea id="recommendations" rows="3" placeholder="What should be done next? E.g. organise a follow-up hands-on lab, invite speaker again for advanced session..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(5)">← Learning Outcomes</button>
+        <button class="btn-nav btn-next" onclick="goTo(7)">Feedback Summary →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 7: FEEDBACK
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step7">
+      <div class="section-header">
+        <span class="section-tag">Section H</span>
+        <div class="section-title">Feedback Summary & Analysis</div>
+        <div class="section-subtitle">Quantitative feedback analysis required for NAAC Attributes 5 & 7</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body col2">
+          <div class="field"><label>Total Feedback Forms Collected</label><input type="number" id="feedbackTotal" placeholder="0" min="0"/></div>
+          <div class="field"><label>Mode of Feedback</label>
+            <select id="feedbackMode"><option value="">— Select —</option><option>Paper Forms</option><option>Google Form</option><option>Institutional MIS Portal</option><option>Mixed</option></select>
+          </div>
+          <div class="field"><label>Overall Average Rating <span class="hint">Out of 5 or 10</span></label><input type="text" id="avgRating" placeholder="e.g. 4.3 / 5"/></div>
+          <div class="field"><label>% Participants Rating 'Excellent' or 'Good'</label><input type="text" id="positivePct" placeholder="e.g. 87%"/></div>
+          <div class="field full"><label>Key Observations from Feedback</label><textarea id="feedbackObservations" rows="3" placeholder="Positive: Participants appreciated the practical demonstrations and expert insights.&#10;Suggestions: More time for Q&A, additional hands-on exercises requested."></textarea></div>
+          <div class="field full"><label>Corrective Actions Planned</label><textarea id="correctiveActions" rows="3" placeholder="Based on feedback, next edition will include a dedicated 30-minute Q&A session and printed reference materials..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(6)">← Impact</button>
+        <button class="btn-nav btn-next" onclick="goTo(8)">Documents Checklist →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 8: DOCUMENTS CHECKLIST
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step8">
+      <div class="section-header">
+        <span class="section-tag">Section G</span>
+        <div class="section-title">Supporting Documents & Evidence Checklist</div>
+        <div class="section-subtitle">All documents must be uploaded to the institutional repository / MIS portal for DVV verification</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="checklist-table" id="docsTable">
+            <thead><tr><th>#</th><th>Document / Evidence</th><th>Enclosed?</th><th>Link / Reference No.</th></tr></thead>
+            <tbody id="docsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(7)">← Feedback</button>
+        <button class="btn-nav btn-next" onclick="goTo(9)">Approval & Sign-off →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 9: APPROVAL
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step9">
+      <div class="section-header">
+        <span class="section-tag">Section I</span>
+        <div class="section-title">Approval, Verification & Signatures</div>
+        <div class="section-subtitle">Multi-level approval chain required by NAAC quality assurance framework</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 Compiled By</div>
+        <div class="card-body col2">
+          <div class="field"><label>Name</label><input type="text" id="compiledByName" placeholder="Full name"/></div>
+          <div class="field"><label>Designation</label><input type="text" id="compiledByDesig" placeholder="e.g. Assistant Professor"/></div>
+          <div class="field"><label>Date of Submission</label><input type="date" id="submissionDate"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Verification Chain</div>
+        <div class="card-body">
+          <div class="sig-row">
+            <div class="sig-block">
+              <label>Faculty In-Charge</label>
+              <input type="text" id="sigFaculty" placeholder="Name"/>
+              <input type="text" id="sigFacultyDate" placeholder="Date" style="margin-top:8px;"/>
+            </div>
+            <div class="sig-block">
+              <label>Head of Department</label>
+              <input type="text" id="sigHOD" placeholder="Name"/>
+              <input type="text" id="sigHODDate" placeholder="Date" style="margin-top:8px;"/>
+            </div>
+            <div class="sig-block">
+              <label>IQAC Coordinator</label>
+              <input type="text" id="sigIQAC" placeholder="Name"/>
+              <input type="text" id="sigIQACRemark" placeholder="Remarks" style="margin-top:8px;"/>
+            </div>
+          </div>
+          <div class="sig-row" style="margin-top:14px;">
+            <div class="sig-block" style="grid-column:1/4;">
+              <label>Principal / Dean / Director (Final Approval)</label>
+              <input type="text" id="sigPrincipal" placeholder="Name and designation"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(8)">← Documents</button>
+        <button class="btn-nav btn-submit" id="submitBtn" onclick="generateReport()">⬇ Generate & Download Report</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Report Ready!</div>
+      <div class="success-sub">Your NAAC Activity Report has been generated. Download it as a Word document to submit to IQAC or include in your SSR / AQAR.</div>
+      <div class="download-btns">
+        <button class="btn-dl btn-dl-word" id="dlWordBtn">📄 Download Word (.docx)</button>
+      </div>
+      <div style="margin-top:28px;">
+        <button class="btn-nav btn-prev" onclick="fillAnother()">← Fill Another Report</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- OVERLAY / MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="spinner" id="modalSpinner"></div>
+    <div class="modal-title" id="modalTitle">Generating Report...</div>
+    <div class="modal-sub" id="modalSub">Claude AI is formatting your NAAC Activity Report. This usually takes 10–20 seconds.</div>
+    <div class="modal-actions" id="modalActions" style="display:none;">
+      <button class="btn-modal btn-modal-secondary" onclick="closeOverlay()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// CONFIG & STATE
+// ─────────────────────────────────────────────────────────────
+const STEPS = [
+  { name: "Institution & Event", desc: "Basic identification" },
+  { name: "Participation & Guest", desc: "Attendance & speaker" },
+  { name: "NAAC Mapping", desc: "10 Attributes" },
+  { name: "Event Description", desc: "Narrative & content" },
+  { name: "Learning Outcomes", desc: "PO/CO & competencies" },
+  { name: "Impact Assessment", desc: "Evidence & outcomes" },
+  { name: "Feedback Summary", desc: "Analysis & ratings" },
+  { name: "Documents Checklist", desc: "Evidence inventory" },
+  { name: "Approval & Sign-off", desc: "Multi-level approval" },
+];
+
+const DOCS = [
+  "Event Proposal / Approval Letter",
+  "Event Brochure / Poster / Notice",
+  "Attendance Sheet — Students (Internal)",
+  "Attendance Sheet — External Participants",
+  "Guest / Speaker Profile & Consent",
+  "Geo-tagged Photographs (min. 4)",
+  "Photographs without caption (min. 2)",
+  "Participant Feedback Forms / Survey",
+  "Feedback Analysis Summary",
+  "Pre-Event & Post-Event Test",
+  "Certificate of Participation (template)",
+  "MoU / Collaboration Document",
+  "Media Coverage / Press Release",
+  "Financial Statement / Sponsorship Details",
+  "Video Recording Link",
+];
+
+let currentStep = 1;
+let generatedDocBlob = null;
+
+// ─── INIT ───────────────────────────────────────────────────
+function init() {
+  buildSidebar();
+  buildAccordion();
+  buildDocsTable();
+  bindWordCount();
+  updateProgress();
+}
+
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  STEPS.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'sidebar-item' + (i === 0 ? ' active' : '');
+    div.id = 'sidebarItem' + (i + 1);
+    div.onclick = () => goTo(i + 1);
+    div.innerHTML = `
+      <div class="step-dot" id="dot${i+1}">${i+1}</div>
+      <div class="step-info">
+        <div class="step-name">${s.name}</div>
+        <div class="step-desc">${s.desc}</div>
+      </div>`;
+    sb.appendChild(div);
+  });
+}
+
+function buildDocsTable() {
+  const tbody = document.getElementById('docsBody');
+  DOCS.forEach((doc, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+      <td>${doc}</td>
+      <td>
+        <select style="width:90px;" id="doc_enc_${i}">
+          <option value="">—</option>
+          <option value="Yes">Yes ✓</option>
+          <option value="No">No</option>
+          <option value="N/A">N/A</option>
+        </select>
+      </td>
+      <td><input type="text" id="doc_link_${i}" placeholder="Link or ref no." style="width:100%;"/></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function bindWordCount() {
+  const ta = document.getElementById('detailedReport');
+  ta.addEventListener('input', () => {
+    const words = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+    const el = document.getElementById('wordCount');
+    el.textContent = `Words: ${words}`;
+    el.style.color = words >= 200 ? 'var(--success)' : (words > 100 ? 'var(--accent)' : 'var(--muted)');
+    if (words >= 200) el.textContent += ' ✓';
+  });
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────────
+function goTo(step) {
+  document.getElementById('step' + currentStep).classList.remove('active');
+  document.getElementById('sidebarItem' + currentStep).classList.remove('active');
+  if (currentStep < step) {
+    document.getElementById('sidebarItem' + currentStep).classList.add('completed');
+    const dot = document.getElementById('dot' + currentStep);
+    dot.textContent = '';
+  }
+  currentStep = step;
+  document.getElementById('step' + currentStep).classList.add('active');
+  document.getElementById('sidebarItem' + currentStep).classList.add('active');
+  document.getElementById('sidebarItem' + currentStep).classList.remove('completed');
+  updateProgress();
+  document.getElementById('mainArea').scrollTop = 0;
+}
+
+function updateProgress() {
+  const pct = Math.round((currentStep / STEPS.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Section ${currentStep} of ${STEPS.length}`;
+  document.getElementById('quickExportBtn').disabled = currentStep < 4;
+}
+
+// ─── NAAC ATTRIBUTE DATA ────────────────────────────────────
+const NAAC_ATTRS = [
+  {
+    id: 1, tier: 'input', label: 'Attr-1', title: 'Curricular Aspects',
+    desc: 'Dynamic curriculum aligned with industry needs, NEP 2020, NCRF & Indian Knowledge Systems',
+    subs: [
+      { id: '1.1', label: 'Curriculum Design & Development', hint: 'Curriculum structure, flexibility, NCRF alignment, NEP 2020 implementation' },
+      { id: '1.2', label: 'Academic Flexibility', hint: 'Choice-based credit system, electives, inter-disciplinary courses, open electives' },
+      { id: '1.3', label: 'Curriculum Enrichment', hint: 'Value-added courses, skill development, employability courses, industry integration' },
+      { id: '1.4', label: 'Feedback System', hint: 'Stakeholder feedback on curriculum — students, alumni, industry, employers' },
+      { id: '1.5', label: 'Indian Knowledge Systems (IKS)', hint: 'Integration of traditional knowledge, Sanskrit studies, cultural heritage courses' },
+    ]
+  },
+  {
+    id: 2, tier: 'input', label: 'Attr-2', title: 'Teaching-Learning & Evaluation',
+    desc: 'Faculty qualifications, innovative pedagogies, student-centric learning and assessment strategies',
+    subs: [
+      { id: '2.1', label: 'Student Enrolment & Profile', hint: 'Diversity, reservation categories, special category admissions' },
+      { id: '2.2', label: 'Catering to Student Diversity', hint: 'Slow/advanced learners, bridge courses, remedial classes, mentoring' },
+      { id: '2.3', label: 'Teaching-Learning Process', hint: 'ICT tools, LMS usage, experiential learning, flipped classroom, collaborative learning' },
+      { id: '2.4', label: 'Teacher Profile & Quality', hint: 'Faculty qualifications, PhDs, publications, awards, recognition' },
+      { id: '2.5', label: 'Evaluation Process & Reforms', hint: 'Continuous Internal Evaluation (CIE), grading system, exam reforms, online exams' },
+      { id: '2.6', label: 'Student Performance & Learning Outcomes', hint: 'Pass rates, PO/CO attainment, Bloom\'s taxonomy, OBE implementation' },
+      { id: '2.7', label: 'Student Satisfaction Survey', hint: 'Annual student satisfaction data, analysis and action taken' },
+    ]
+  },
+  {
+    id: 3, tier: 'input', label: 'Attr-3', title: 'Research, Innovation & Extension',
+    desc: 'Research infrastructure, publications, patents, innovation ecosystem and community outreach',
+    subs: [
+      { id: '3.1', label: 'Resource Mobilisation for Research', hint: 'Research grants, funded projects, seed money, research budget allocation' },
+      { id: '3.2', label: 'Innovation Ecosystem', hint: 'Incubation centres, start-ups, innovation labs, hackathons, IPR policy' },
+      { id: '3.3', label: 'Research Publications & Awards', hint: 'Indexed publications (Scopus/WoS), h-index, citations, books, book chapters' },
+      { id: '3.4', label: 'Extension Activities', hint: 'NSS, NCC, community outreach, rural development, social responsibility activities' },
+      { id: '3.5', label: 'Collaboration', hint: 'MoUs, industry linkages, academic partnerships, international collaborations' },
+    ]
+  },
+  {
+    id: 4, tier: 'process', label: 'Attr-4', title: 'Infrastructure & Learning Resources',
+    desc: 'Physical and digital infrastructure, library resources, IT facilities and accessibility',
+    subs: [
+      { id: '4.1', label: 'Physical Facilities', hint: 'Classrooms, labs, smart rooms, seminar halls, sports infrastructure' },
+      { id: '4.2', label: 'Library as a Learning Resource', hint: 'Books, journals, e-resources, library automation, open access' },
+      { id: '4.3', label: 'IT Infrastructure', hint: 'Internet bandwidth, LAN/Wi-Fi, computing devices, digital platforms' },
+      { id: '4.4', label: 'Maintenance of Infrastructure', hint: 'Annual maintenance budget, upkeep records, green campus initiatives' },
+    ]
+  },
+  {
+    id: 5, tier: 'process', label: 'Attr-5', title: 'Student Support & Progression',
+    desc: 'Student welfare, scholarships, career guidance, placements and alumni engagement',
+    subs: [
+      { id: '5.1', label: 'Student Support', hint: 'Scholarships, freeships, financial aid, skill development, language lab' },
+      { id: '5.2', label: 'Student Progression', hint: 'Placement rates, higher education progression, competitive exam qualifiers' },
+      { id: '5.3', label: 'Student Participation & Activities', hint: 'Sports, cultural events, student clubs, NSS/NCC, achievements' },
+      { id: '5.4', label: 'Alumni Engagement', hint: 'Alumni association, alumni contributions, career mentoring, events' },
+    ]
+  },
+  {
+    id: 6, tier: 'process', label: 'Attr-6', title: 'Governance, Leadership & Management',
+    desc: 'Institutional governance structures, strategic planning, leadership effectiveness and e-governance',
+    subs: [
+      { id: '6.1', label: 'Institutional Vision & Leadership', hint: 'Vision/mission alignment, strategic plan, leadership development programs' },
+      { id: '6.2', label: 'Strategy Development & Deployment', hint: 'Perspective plan, deployment strategies, performance indicators' },
+      { id: '6.3', label: 'Faculty Empowerment Strategies', hint: 'Faculty training, welfare schemes, appraisal system, incentives' },
+      { id: '6.4', label: 'Financial Management & Resource Mobilisation', hint: 'Budget allocation, audited accounts, resource generation, grants utilisation' },
+      { id: '6.5', label: 'Internal Quality Assurance System (IQAC)', hint: 'IQAC constitution, AQAR submission, quality audits, ISO certification' },
+    ]
+  },
+  {
+    id: 7, tier: 'process', label: 'Attr-7', title: 'Institutional Values & Best Practices',
+    desc: 'Ethics, gender equity, environmental consciousness, inclusive culture and innovative best practices',
+    subs: [
+      { id: '7.1', label: 'Institutional Values & Social Responsibilities', hint: 'Gender equity, divyangjan support, environmental sustainability, energy use' },
+      { id: '7.2', label: 'Best Practices', hint: 'Documented best practices with context, objectives, implementation and impact' },
+      { id: '7.3', label: 'Institutional Distinctiveness', hint: 'Unique programs, signature strengths, distinctive achievements and identity' },
+    ]
+  },
+  {
+    id: 8, tier: 'outcome', label: 'Attr-8', title: 'Student Outcomes',
+    desc: 'Placement, higher education, awards, pass rates and overall graduate quality',
+    subs: [
+      { id: '8.1', label: 'Placement & Employability', hint: 'Campus recruitment, placement rates, average salary packages, employer satisfaction' },
+      { id: '8.2', label: 'Higher Education & Competitive Exams', hint: 'Students pursuing PG/PhD, GATE/GRE/UPSC qualifiers, entrance exam performance' },
+      { id: '8.3', label: 'Student Awards & Recognition', hint: 'National/international awards, medals, fellowships, sports achievements' },
+      { id: '8.4', label: 'Ph.D. Awarded', hint: 'Number of PhDs awarded during assessment period' },
+      { id: '8.5', label: 'Entrepreneurship & Start-ups', hint: 'Student start-ups, innovation-led ventures, supported by institutional incubators' },
+    ]
+  },
+  {
+    id: 9, tier: 'outcome', label: 'Attr-9', title: 'Research & Innovation Outcomes',
+    desc: 'Patents, publications, spin-offs, technology transfer and innovation impact',
+    subs: [
+      { id: '9.1', label: 'Patents & Intellectual Property', hint: 'Patents filed/published/granted, copyrights, trademarks, technology transfers' },
+      { id: '9.2', label: 'Research Publications Output', hint: 'Scopus/WoS indexed papers, citations, impact factor, h-index growth' },
+      { id: '9.3', label: 'Innovation & Start-up Ecosystem Outcomes', hint: 'Incubated companies, revenue generated, venture funding, social enterprises' },
+      { id: '9.4', label: 'Faculty Awards & Recognition', hint: 'National/international recognition, fellowships, membership in professional bodies' },
+    ]
+  },
+  {
+    id: 10, tier: 'outcome', label: 'Attr-10', title: 'Sustainability & Green Initiatives',
+    desc: 'Environmental responsibility, green campus, energy conservation and sustainability outcomes',
+    subs: [
+      { id: '10.1', label: 'Green Campus & Environment', hint: 'Green audit, solar energy, rainwater harvesting, waste management, tree plantation' },
+      { id: '10.2', label: 'Institutional Rankings & Recognition', hint: 'NIRF ranking, QS/THE/NAAC scores, state/national rankings progress' },
+      { id: '10.3', label: 'Community Impact & Outreach Outcomes', hint: 'Impact of UBA, community service, clean village drive, health/awareness campaigns' },
+      { id: '10.4', label: 'International Activities & Global Presence', hint: 'Foreign students, international partnerships, global rankings, exchange programs' },
+    ]
+  },
+];
+
+const tierClass = { input: 'input-block', process: 'process-block', outcome: 'outcome-block' };
+const tierTag   = { input: 'INPUT', process: 'PROCESS', outcome: 'OUTCOME' };
+
+// selected: { attrId: Set of sub-ids }
+let selectedSubAttrs = {};
+
+function buildAccordion() {
+  const acc = document.getElementById('attrAccordion');
+  acc.innerHTML = '';
+  NAAC_ATTRS.forEach(attr => {
+    const block = document.createElement('div');
+    block.className = `attr-block ${tierClass[attr.tier]}`;
+    block.id = `attrBlock_${attr.id}`;
+
+    block.innerHTML = `
+      <div class="attr-block-header" id="attrHeader_${attr.id}" onclick="toggleBlock(${attr.id})">
+        <span class="attr-badge">${tierTag[attr.tier]}</span>
+        <span class="attr-num-badge" style="margin:0;">${attr.label}</span>
+        <span class="attr-block-title">${attr.title}</span>
+        <span class="attr-selected-summary" id="attrSummary_${attr.id}"></span>
+        <span class="attr-sel-count zero" id="attrCount_${attr.id}">0</span>
+        <span class="attr-chevron" id="attrChevron_${attr.id}">▼</span>
+      </div>
+      <div class="attr-block-body" id="attrBody_${attr.id}">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;">${attr.desc}</div>
+        ${attr.subs.map(sub => `
+          <div class="attr-num-row" id="subRow_${attr.id}_${sub.id.replace('.','_')}">
+            <span class="attr-num-badge">${sub.id}</span>
+            <div class="attr-num-content">
+              <div class="attr-num-title">${sub.label}</div>
+              <div class="attr-num-desc">${sub.hint}</div>
+              <div class="ms-wrapper" id="msWrap_${attr.id}_${sub.id.replace('.','_')}">
+                <div class="ms-trigger" id="msTrigger_${attr.id}_${sub.id.replace('.','_')}"
+                     onclick="toggleDropdown('${attr.id}','${sub.id}',event)">
+                  <span class="ms-trigger-placeholder" id="msPlaceholder_${attr.id}_${sub.id.replace('.','_')}">Select relevance to this event…</span>
+                  <span class="ms-chevron">▼</span>
+                </div>
+                <div class="ms-dropdown" id="msDD_${attr.id}_${sub.id.replace('.','_')}">
+                  ${getSubOptions(attr.id, sub.id, attr.tier)}
+                </div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    acc.appendChild(block);
+  });
+}
+
+function getSubOptions(attrId, subId, tier) {
+  const OPTIONS = [
+    { val: 'Directly related — event primarily addresses this sub-attribute', short: 'Directly Related' },
+    { val: 'Partially related — event partially supports this sub-attribute', short: 'Partially Related' },
+    { val: 'Evidence generated — event produces documentary evidence for this sub-attribute', short: 'Evidence Generated' },
+    { val: 'Student learning outcome — contributes to student competency for this sub-attribute', short: 'Student Outcome' },
+    { val: 'Faculty development — supports faculty capability for this sub-attribute', short: 'Faculty Development' },
+    { val: 'Community impact — creates societal value relevant to this sub-attribute', short: 'Community Impact' },
+  ];
+  const key = `${attrId}_${subId.replace('.','_')}`;
+  return OPTIONS.map(opt => `
+    <div class="ms-opt" onclick="toggleSubOption('${key}','${opt.val}','${opt.short}',this,event)">
+      <input type="checkbox" id="cb_${key}_${opt.val.slice(0,10).replace(/\s/g,'')}" readonly/>
+      <div class="ms-opt-label"><strong>${opt.short}</strong><span>${opt.val.replace(opt.short+' — ','')}</span></div>
+    </div>`).join('');
+}
+
+function toggleBlock(attrId) {
+  const body    = document.getElementById(`attrBody_${attrId}`);
+  const chevron = document.getElementById(`attrChevron_${attrId}`);
+  const isOpen  = body.classList.contains('open');
+  // close all
+  document.querySelectorAll('.attr-block-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.attr-chevron').forEach(c => c.classList.remove('open'));
+  if (!isOpen) {
+    body.classList.add('open');
+    chevron.classList.add('open');
+  }
+  closeAllDropdowns();
+}
+
+function toggleDropdown(attrId, subId, event) {
+  event.stopPropagation();
+  const key = `${attrId}_${subId.replace('.','_')}`;
+  const dd  = document.getElementById(`msDD_${key}`);
+  const tr  = document.getElementById(`msTrigger_${key}`);
+  const isOpen = dd.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    dd.classList.add('open');
+    tr.classList.add('open');
+  }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.ms-dropdown.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.ms-trigger.open').forEach(t => t.classList.remove('open'));
+}
+
+document.addEventListener('click', () => closeAllDropdowns());
+
+function toggleSubOption(key, val, shortVal, optEl, event) {
+  event.stopPropagation();
+  const [attrId, ...subParts] = key.split('_');
+  const subKey = subParts.join('_');
+  const storeKey = `${attrId}_${subKey}`;
+
+  if (!selectedSubAttrs[storeKey]) selectedSubAttrs[storeKey] = new Set();
+  const set = selectedSubAttrs[storeKey];
+
+  const cb = optEl.querySelector('input[type=checkbox]');
+  if (set.has(val)) {
+    set.delete(val);
+    optEl.classList.remove('selected');
+    if (cb) cb.checked = false;
+  } else {
+    set.add(val);
+    optEl.classList.add('selected');
+    if (cb) cb.checked = true;
+  }
+
+  refreshTrigger(attrId, subKey.replace('_','.'));
+  refreshAttrCount(parseInt(attrId));
+  refreshSummaryBar();
+}
+
+function refreshTrigger(attrId, subId) {
+  const key = `${attrId}_${subId.replace('.','_')}`;
+  const set = selectedSubAttrs[key] || new Set();
+  const trigger = document.getElementById(`msTrigger_${key}`);
+  const placeholder = document.getElementById(`msPlaceholder_${key}`);
+  if (!trigger) return;
+
+  // Remove old tags
+  trigger.querySelectorAll('.ms-tag').forEach(t => t.remove());
+  const chevron = trigger.querySelector('.ms-chevron');
+
+  if (set.size === 0) {
+    if (!placeholder) {
+      const sp = document.createElement('span');
+      sp.className = 'ms-trigger-placeholder';
+      sp.id = `msPlaceholder_${key}`;
+      sp.textContent = 'Select relevance to this event…';
+      trigger.insertBefore(sp, chevron);
+    }
+  } else {
+    if (placeholder) placeholder.remove();
+    const SHORTS = {
+      'Directly related — event primarily addresses this sub-attribute': 'Directly Related',
+      'Partially related — event partially supports this sub-attribute': 'Partially Related',
+      'Evidence generated — event produces documentary evidence for this sub-attribute': 'Evidence Generated',
+      'Student learning outcome — contributes to student competency for this sub-attribute': 'Student Outcome',
+      'Faculty development — supports faculty capability for this sub-attribute': 'Faculty Development',
+      'Community impact — creates societal value relevant to this sub-attribute': 'Community Impact',
+    };
+    set.forEach(val => {
+      const tag = document.createElement('span');
+      tag.className = 'ms-tag';
+      tag.innerHTML = `${SHORTS[val]||val} <span class="ms-tag-x" onclick="removeSubOption('${key}','${val}',event)">×</span>`;
+      trigger.insertBefore(tag, chevron);
+    });
+  }
+}
+
+function removeSubOption(key, val, event) {
+  event.stopPropagation();
+  const [attrId, ...subParts] = key.split('_');
+  if (selectedSubAttrs[key]) {
+    selectedSubAttrs[key].delete(val);
+    // uncheck dropdown option
+    const dd = document.getElementById(`msDD_${key}`);
+    if (dd) dd.querySelectorAll('.ms-opt').forEach(opt => {
+      if (opt.querySelector('strong') && opt.textContent.includes(val.slice(0,15))) {
+        opt.classList.remove('selected');
+        const cb = opt.querySelector('input'); if (cb) cb.checked = false;
+      }
+    });
+    refreshTrigger(attrId, subParts.join('_').replace('_','.'));
+    refreshAttrCount(parseInt(attrId));
+    refreshSummaryBar();
+  }
+}
+
+function refreshAttrCount(attrId) {
+  const attr = NAAC_ATTRS.find(a => a.id === attrId);
+  if (!attr) return;
+  let total = 0;
+  const summaryEl = document.getElementById(`attrSummary_${attrId}`);
+  const countEl   = document.getElementById(`attrCount_${attrId}`);
+  summaryEl.innerHTML = '';
+
+  attr.subs.forEach(sub => {
+    const key = `${attrId}_${sub.id.replace('.','_')}`;
+    const set = selectedSubAttrs[key] || new Set();
+    if (set.size > 0) {
+      total++;
+      const tag = document.createElement('span');
+      tag.className = 'attr-mini-tag';
+      tag.textContent = sub.id + ': ' + sub.label.split(' ').slice(0,3).join(' ') + (set.size > 1 ? ` (${set.size})` : '');
+      summaryEl.appendChild(tag);
+    }
+  });
+
+  countEl.textContent = total;
+  countEl.className = 'attr-sel-count' + (total === 0 ? ' zero' : '');
+}
+
+function refreshSummaryBar() {
+  const container = document.getElementById('attrSummaryTags');
+  container.innerHTML = '';
+  let any = false;
+  NAAC_ATTRS.forEach(attr => {
+    attr.subs.forEach(sub => {
+      const key = `${attr.id}_${sub.id.replace('.','_')}`;
+      const set = selectedSubAttrs[key] || new Set();
+      if (set.size > 0) {
+        any = true;
+        const tag = document.createElement('span');
+        tag.className = `attr-sum-tag ${attr.tier === 'input' ? 'inp' : attr.tier === 'process' ? 'proc' : 'out'}`;
+        tag.textContent = `${attr.label} › ${sub.id} ${sub.label}`;
+        container.appendChild(tag);
+      }
+    });
+  });
+  if (!any) container.innerHTML = '<span class="attr-sum-empty">No sub-attributes selected yet — expand an attribute above to select.</span>';
+}
+
+function getSelectedAttrsForExport() {
+  const result = [];
+  NAAC_ATTRS.forEach(attr => {
+    attr.subs.forEach(sub => {
+      const key = `${attr.id}_${sub.id.replace('.','_')}`;
+      const set = selectedSubAttrs[key] || new Set();
+      if (set.size > 0) {
+        result.push(`${attr.label} › ${sub.id} ${sub.label}: ${[...set].join('; ')}`);
+      }
+    });
+  });
+  return result;
+}
+
+// ─── CB ITEM STYLE ──────────────────────────────────────────
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'checkbox') {
+    e.target.closest('.cb-item').classList.toggle('checked', e.target.checked);
+  }
+});
+
+// ─── COLLECT DATA ───────────────────────────────────────────
+function collectData() {
+  const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  const gradAttrs = [];
+  document.querySelectorAll('#gradAttrs input:checked').forEach(cb => gradAttrs.push(cb.value));
+
+  const docsData = DOCS.map((doc, i) => ({
+    name: doc,
+    enclosed: v(`doc_enc_${i}`),
+    link: v(`doc_link_${i}`)
+  }));
+
+  const total = (parseInt(v('studentsCount')) || 0) + (parseInt(v('facultyCount')) || 0) + (parseInt(v('ntStaffCount')) || 0);
+
+  return {
+    // Section A
+    institutionName: v('institutionName'),
+    campus: v('campus'),
+    department: v('department'),
+    academicYear: v('academicYear'),
+    eventTitle: v('eventTitle'),
+    eventType: v('eventType'),
+    startDate: v('startDate'),
+    endDate: v('endDate'),
+    duration: v('duration'),
+    mode: v('mode'),
+    venue: v('venue'),
+    facultyCoord: v('facultyCoord'),
+    studentCoord: v('studentCoord'),
+    // Section C
+    studentsCount: v('studentsCount'),
+    facultyCount: v('facultyCount'),
+    ntStaffCount: v('ntStaffCount'),
+    totalParticipants: total || '',
+    externalCount: v('externalCount'),
+    targetAudience: v('targetAudience'),
+    sponsors: v('sponsors'),
+    guestName: v('guestName'),
+    guestDesig: v('guestDesig'),
+    guestOrg: v('guestOrg'),
+    guestTopic: v('guestTopic'),
+    guestProfile: v('guestProfile'),
+    // Section B
+    naacAttributes: getSelectedAttrsForExport(),
+    metricNo: v('metricNo'),
+    criteriaRef: v('criteriaRef'),
+    // Section D
+    objectives: v('objectives'),
+    detailedReport: v('detailedReport'),
+    keyTopics: v('keyTopics'),
+    methodology: v('methodology'),
+    // Section E
+    learningOutcomes: v('learningOutcomes'),
+    poCoMapping: v('poCoMapping'),
+    gradAttrs: gradAttrs,
+    industryRelevance: v('industryRelevance'),
+    sdgAlignment: v('sdgAlignment'),
+    // Section F
+    impactStudents: v('impactStudents'),
+    impactFaculty: v('impactFaculty'),
+    impactCommunity: v('impactCommunity'),
+    evidenceImpact: v('evidenceImpact'),
+    mouDetails: v('mouDetails'),
+    recommendations: v('recommendations'),
+    // Section H
+    feedbackTotal: v('feedbackTotal'),
+    feedbackMode: v('feedbackMode'),
+    avgRating: v('avgRating'),
+    positivePct: v('positivePct'),
+    feedbackObservations: v('feedbackObservations'),
+    correctiveActions: v('correctiveActions'),
+    // Docs
+    docs: docsData,
+    // Section I
+    compiledByName: v('compiledByName'),
+    compiledByDesig: v('compiledByDesig'),
+    submissionDate: v('submissionDate'),
+    sigFaculty: v('sigFaculty'),
+    sigFacultyDate: v('sigFacultyDate'),
+    sigHOD: v('sigHOD'),
+    sigHODDate: v('sigHODDate'),
+    sigIQAC: v('sigIQAC'),
+    sigIQACRemark: v('sigIQACRemark'),
+    sigPrincipal: v('sigPrincipal'),
+  };
+}
+
+// ─── GENERATE REPORT ────────────────────────────────────────
+async function generateReport() {
+  const data = collectData();
+  if (!data.eventTitle) { alert('Please enter an Event Title before generating.'); goTo(1); return; }
+
+  showOverlay('Generating Report...', 'Claude AI is formatting your NAAC Activity Report into a structured Word document. This usually takes 10–20 seconds.');
+
+  try {
+    const prompt = buildPrompt(data);
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const result = await response.json();
+    const text = result.content?.map(b => b.text || '').join('') || '';
+
+    // Parse the structured report text from Claude
+    let reportText = text.trim();
+    if (reportText.startsWith('```')) reportText = reportText.replace(/^```[a-z]*\n?/, '').replace(/```$/, '').trim();
+
+    // Build the Word doc as HTML-based .doc (universally openable)
+    generatedDocBlob = buildWordDoc(data, reportText);
+
+    hideOverlay();
+    showSuccess();
+  } catch (err) {
+    console.error(err);
+    // Fallback: generate doc without AI enhancement
+    generatedDocBlob = buildWordDoc(data, '');
+    hideOverlay();
+    showSuccess();
+  }
+}
+
+function buildPrompt(data) {
+  return `You are an IQAC officer writing a formal NAAC activity report for an Indian university. 
+Given the following event data, write a polished 250–300 word "Detailed Event Report" narrative in formal academic English suitable for NAAC SSR submission. 
+Use third person. Include: opening, main proceedings, key highlights, participation, and conclusion. Return ONLY the narrative text, no preamble.
+
+Event: ${data.eventTitle || 'N/A'}
+Type: ${data.eventType || 'N/A'}
+Date: ${data.startDate || 'N/A'} to ${data.endDate || data.startDate || 'N/A'}
+Venue: ${data.venue || 'N/A'}
+Department: ${data.department || 'N/A'}
+Guest: ${data.guestName || ''} ${data.guestDesig ? ', ' + data.guestDesig : ''} ${data.guestOrg ? ', ' + data.guestOrg : ''}
+Guest Topic: ${data.guestTopic || 'N/A'}
+Participants: ${data.totalParticipants || 'N/A'} (${data.studentsCount || 0} students, ${data.facultyCount || 0} faculty)
+Objectives: ${data.objectives || 'N/A'}
+Key Topics: ${data.keyTopics || 'N/A'}
+User-provided report draft (expand and polish this): ${data.detailedReport || '(none provided)'}`;
+}
+
+// ─── BUILD WORD DOC (HTML-based .doc) ───────────────────────
+function buildWordDoc(data, aiNarrative) {
+  const d = data;
+  const attrs = d.naacAttributes.length
+    ? d.naacAttributes.map(a => `<li style="margin-bottom:4px;">${a}</li>`).join('')
+    : '<li>—</li>';
+  const gradA = d.gradAttrs.length ? d.gradAttrs.join(', ') : '—';
+  const reportBody = aiNarrative || d.detailedReport || '—';
+
+  const docsRows = d.docs.map((doc, i) => `
+    <tr style="background:${i % 2 === 0 ? '#fff' : '#f8fafd'}">
+      <td style="padding:7px 10px;border:1px solid #C8D9EC;text-align:center;color:#888;">${i+1}</td>
+      <td style="padding:7px 12px;border:1px solid #C8D9EC;">${doc.name}</td>
+      <td style="padding:7px 10px;border:1px solid #C8D9EC;text-align:center;font-weight:600;color:${doc.enclosed==='Yes'?'#2D8A4E':doc.enclosed==='No'?'#C0392B':'#888'}">${doc.enclosed || '—'}</td>
+      <td style="padding:7px 12px;border:1px solid #C8D9EC;color:#555;">${doc.link || '—'}</td>
+    </tr>`).join('');
+
+  const html = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8"/>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #1a1f2e; }
+  h1 { font-size: 15pt; color: #1F3864; margin: 0; }
+  h2 { font-size: 12pt; color: #fff; background: #2E75B6; padding: 7px 12px; margin: 18px 0 0 0; page-break-inside: avoid; }
+  h3 { font-size: 11pt; color: #1F3864; background: #BDD7EE; padding: 5px 10px; margin: 10px 0 0 0; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .lbl { background: #EEF4FB; font-weight: bold; color: #1F3864; padding: 7px 10px; border: 1px solid #C8D9EC; width: 35%; vertical-align: top; }
+  .val { background: #fff; padding: 7px 12px; border: 1px solid #C8D9EC; vertical-align: top; }
+  .banner { background: #1F3864; color: #fff; padding: 16px 20px; margin-bottom: 18px; }
+  .banner-sub { color: #9DC3E6; font-size: 10pt; margin-top: 4px; }
+  .footer-note { background: #D6E4F0; padding: 10px 14px; font-size: 9pt; font-style: italic; color: #444; margin-top: 20px; border-left: 4px solid #2E75B6; }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <h1>INSTITUTIONAL ACTIVITY / EVENT REPORT</h1>
+  <div class="banner-sub">Aligned to NAAC Binary Accreditation Framework (10 Attributes) | IQAC Approved Format</div>
+  <div style="color:#BDD7EE;font-size:9pt;margin-top:4px;">Academic Year: ${d.academicYear || '___________'}</div>
+</div>
+
+<h2>SECTION A — INSTITUTIONAL &amp; EVENT IDENTIFICATION</h2>
+<table>
+  <tr><td class="lbl">Institution Name</td><td class="val">${d.institutionName || '—'}</td></tr>
+  <tr><td class="lbl">Campus / School / Faculty</td><td class="val">${d.campus || '—'}</td></tr>
+  <tr><td class="lbl">Organising Department / Club</td><td class="val">${d.department || '—'}</td></tr>
+  <tr><td class="lbl">Academic Year</td><td class="val">${d.academicYear || '—'}</td></tr>
+  <tr><td class="lbl">Event Title</td><td class="val"><strong>${d.eventTitle || '—'}</strong></td></tr>
+  <tr><td class="lbl">Event Type</td><td class="val">${d.eventType || '—'}</td></tr>
+  <tr><td class="lbl">Start Date</td><td class="val">${d.startDate || '—'}</td></tr>
+  <tr><td class="lbl">End Date</td><td class="val">${d.endDate || d.startDate || '—'}</td></tr>
+  <tr><td class="lbl">Duration</td><td class="val">${d.duration || '—'}</td></tr>
+  <tr><td class="lbl">Mode</td><td class="val">${d.mode || '—'}</td></tr>
+  <tr><td class="lbl">Venue</td><td class="val">${d.venue || '—'}</td></tr>
+  <tr><td class="lbl">Faculty Coordinator(s)</td><td class="val">${d.facultyCoord || '—'}</td></tr>
+  <tr><td class="lbl">Student Coordinator(s)</td><td class="val">${d.studentCoord || '—'}</td></tr>
+</table>
+
+<h2>SECTION B — NAAC ATTRIBUTE &amp; CRITERIA MAPPING</h2>
+<table>
+  <tr><td class="lbl">NAAC Sub-Attributes Addressed</td><td class="val"><ul style='margin:0;padding-left:18px;'>${attrs}</ul></td></tr>
+  <tr><td class="lbl">IQAC Key Indicator / Metric No.</td><td class="val">${d.metricNo || '—'}</td></tr>
+  <tr><td class="lbl">7-Criteria Reference</td><td class="val">${d.criteriaRef || '—'}</td></tr>
+</table>
+
+<h2>SECTION C — PARTICIPATION &amp; STAKEHOLDER DETAILS</h2>
+<table>
+  <tr><td class="lbl">Students Participated</td><td class="val">${d.studentsCount || '—'}</td></tr>
+  <tr><td class="lbl">Faculty Participated</td><td class="val">${d.facultyCount || '—'}</td></tr>
+  <tr><td class="lbl">Non-Teaching Staff</td><td class="val">${d.ntStaffCount || '—'}</td></tr>
+  <tr><td class="lbl">Total Participants</td><td class="val"><strong>${d.totalParticipants || '—'}</strong></td></tr>
+  <tr><td class="lbl">Target Audience</td><td class="val">${d.targetAudience || '—'}</td></tr>
+  <tr><td class="lbl">External Participants</td><td class="val">${d.externalCount || '—'}</td></tr>
+  <tr><td class="lbl">Collaborators / Sponsors</td><td class="val">${d.sponsors || '—'}</td></tr>
+</table>
+
+<h3>Guest / Resource Person Profile</h3>
+<table>
+  <tr><td class="lbl">Name</td><td class="val">${d.guestName || '—'}</td></tr>
+  <tr><td class="lbl">Designation</td><td class="val">${d.guestDesig || '—'}</td></tr>
+  <tr><td class="lbl">Organisation</td><td class="val">${d.guestOrg || '—'}</td></tr>
+  <tr><td class="lbl">Topic / Title</td><td class="val">${d.guestTopic || '—'}</td></tr>
+  <tr><td class="lbl">Brief Profile</td><td class="val">${d.guestProfile || '—'}</td></tr>
+</table>
+
+<h2>SECTION D — EVENT DESCRIPTION &amp; CONTENT</h2>
+<table>
+  <tr><td class="lbl">Objectives</td><td class="val" style="white-space:pre-line;">${d.objectives || '—'}</td></tr>
+  <tr><td class="lbl">Detailed Event Report</td><td class="val" style="white-space:pre-line;">${reportBody}</td></tr>
+  <tr><td class="lbl">Key Topics / Sessions</td><td class="val" style="white-space:pre-line;">${d.keyTopics || '—'}</td></tr>
+  <tr><td class="lbl">Methodologies / Pedagogy</td><td class="val">${d.methodology || '—'}</td></tr>
+</table>
+
+<h2>SECTION E — LEARNING OUTCOMES &amp; OUTCOME MAPPING</h2>
+<table>
+  <tr><td class="lbl">Learning Outcomes</td><td class="val" style="white-space:pre-line;">${d.learningOutcomes || '—'}</td></tr>
+  <tr><td class="lbl">PO / CO Alignment</td><td class="val">${d.poCoMapping || '—'}</td></tr>
+  <tr><td class="lbl">Graduate Attributes</td><td class="val">${gradA}</td></tr>
+  <tr><td class="lbl">Industry / Real-World Relevance</td><td class="val">${d.industryRelevance || '—'}</td></tr>
+  <tr><td class="lbl">SDG Alignment</td><td class="val">${d.sdgAlignment || '—'}</td></tr>
+</table>
+
+<h2>SECTION F — IMPACT ASSESSMENT</h2>
+<table>
+  <tr><td class="lbl">Impact on Students</td><td class="val">${d.impactStudents || '—'}</td></tr>
+  <tr><td class="lbl">Impact on Faculty / Institution</td><td class="val">${d.impactFaculty || '—'}</td></tr>
+  <tr><td class="lbl">Community / Societal Impact</td><td class="val">${d.impactCommunity || '—'}</td></tr>
+  <tr><td class="lbl">Evidence of Impact</td><td class="val">${d.evidenceImpact || '—'}</td></tr>
+  <tr><td class="lbl">MoU / Collaboration</td><td class="val">${d.mouDetails || '—'}</td></tr>
+  <tr><td class="lbl">Recommendations</td><td class="val">${d.recommendations || '—'}</td></tr>
+</table>
+
+<h2>SECTION G — SUPPORTING DOCUMENTS CHECKLIST</h2>
+<table>
+  <thead><tr style="background:#2E75B6;color:#fff;">
+    <th style="padding:8px 10px;border:1px solid #C8D9EC;width:40px;">#</th>
+    <th style="padding:8px 12px;border:1px solid #C8D9EC;">Document / Evidence</th>
+    <th style="padding:8px 10px;border:1px solid #C8D9EC;width:80px;">Enclosed?</th>
+    <th style="padding:8px 12px;border:1px solid #C8D9EC;">Link / Reference</th>
+  </tr></thead>
+  <tbody>${docsRows}</tbody>
+</table>
+
+<h2>SECTION H — FEEDBACK SUMMARY &amp; ANALYSIS</h2>
+<table>
+  <tr><td class="lbl">Feedback Forms Collected</td><td class="val">${d.feedbackTotal || '—'}</td></tr>
+  <tr><td class="lbl">Mode of Feedback</td><td class="val">${d.feedbackMode || '—'}</td></tr>
+  <tr><td class="lbl">Average Rating</td><td class="val">${d.avgRating || '—'}</td></tr>
+  <tr><td class="lbl">% Positive Ratings</td><td class="val">${d.positivePct || '—'}</td></tr>
+  <tr><td class="lbl">Key Observations</td><td class="val" style="white-space:pre-line;">${d.feedbackObservations || '—'}</td></tr>
+  <tr><td class="lbl">Corrective Actions</td><td class="val">${d.correctiveActions || '—'}</td></tr>
+</table>
+
+<h2>SECTION I — APPROVAL &amp; VERIFICATION</h2>
+<table>
+  <tr><td class="lbl">Report Compiled By</td><td class="val">${d.compiledByName || '—'}</td></tr>
+  <tr><td class="lbl">Designation</td><td class="val">${d.compiledByDesig || '—'}</td></tr>
+  <tr><td class="lbl">Date of Submission</td><td class="val">${d.submissionDate || '—'}</td></tr>
+  <tr><td class="lbl">Faculty In-Charge</td><td class="val">${d.sigFaculty || '—'} ${d.sigFacultyDate ? '| Date: ' + d.sigFacultyDate : ''}</td></tr>
+  <tr><td class="lbl">Head of Department</td><td class="val">${d.sigHOD || '—'} ${d.sigHODDate ? '| Date: ' + d.sigHODDate : ''}</td></tr>
+  <tr><td class="lbl">IQAC Coordinator</td><td class="val">${d.sigIQAC || '—'} ${d.sigIQACRemark ? '| Remarks: ' + d.sigIQACRemark : ''}</td></tr>
+  <tr><td class="lbl">Principal / Dean / Director</td><td class="val">${d.sigPrincipal || '—'}</td></tr>
+</table>
+
+<div class="footer-note">
+  <strong>IQAC Note:</strong> This report is aligned to NAAC's Binary Accreditation Framework (10 Attributes). 
+  All supporting documents must be uploaded to the institutional repository / MIS portal for DVV verification. 
+  Geo-tagged photographs are mandatory. Reports without feedback analysis and outcome mapping may be returned for revision.
+</div>
+
+</body></html>`;
+
+  return new Blob([html], { type: 'application/msword' });
+}
+
+// ─── OVERLAY ────────────────────────────────────────────────
+function showOverlay(title, sub) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent = sub;
+  document.getElementById('modalSpinner').style.display = 'inline-block';
+  document.getElementById('modalActions').style.display = 'none';
+  document.getElementById('overlay').classList.add('show');
+}
+function hideOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+}
+function closeOverlay() { hideOverlay(); }
+
+// ─── SUCCESS ────────────────────────────────────────────────
+function showSuccess() {
+  for (let i = 1; i <= 9; i++) document.getElementById('step' + i).classList.remove('active');
+  document.getElementById('progressRow').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+
+  document.getElementById('dlWordBtn').onclick = () => {
+    const url = URL.createObjectURL(generatedDocBlob);
+    const a = document.createElement('a');
+    const data = collectData();
+    a.href = url;
+    a.download = `NAAC_Report_${(data.eventTitle || 'Event').replace(/\s+/g, '_')}_${data.startDate || new Date().toISOString().slice(0,10)}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+}
+
+function fillAnother() {
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('progressRow').style.display = 'flex';
+  currentStep = 1;
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('sidebarItem1').classList.add('active');
+  updateProgress();
+}
+
+// ─── QUICK EXPORT ───────────────────────────────────────────
+async function quickExport() {
+  if (!generatedDocBlob) {
+    await generateReport();
+  } else {
+    const data = collectData();
+    const url = URL.createObjectURL(generatedDocBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `NAAC_Report_${(data.eventTitle || 'Event').replace(/\s+/g, '_')}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ─── RESET ──────────────────────────────────────────────────
+function confirmReset() {
+  if (confirm('Reset all form data? This cannot be undone.')) {
+    document.querySelectorAll('input[type=text], input[type=date], input[type=number], input[type=email], textarea, select').forEach(el => el.value = '');
+    document.querySelectorAll('.cb-item input:checked').forEach(cb => { cb.checked = false; cb.closest('.cb-item').classList.remove('checked'); });
+    selectedSubAttrs = {};
+    buildAccordion();
+    refreshSummaryBar();
+    generatedDocBlob = null;
+    goTo(1);
+  }
+}
+
+// ─── START ──────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
