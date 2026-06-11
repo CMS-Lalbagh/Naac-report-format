@@ -2,7 +2,7 @@
 
 > **An internal IQAC tool for filling, formatting, and downloading institutional activity/event reports — fully aligned to NAAC's Binary Accreditation Framework (10 Attributes).**
 
-🔗 **[Open the Tool →](https://YOUR-USERNAME.github.io/naac-report-tool)**
+🔗 **[Open the Tool →](https://github.com/CMS-Lalbagh/Naac-report-format)**
 
 ---
 
