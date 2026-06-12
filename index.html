@@ -14,18 +14,9 @@
 
   function tryFinishDriveInit() {
     if (window._gapiReady && window._gsiReady) {
-      window._driveTokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: '714478709483-qoe3n8lmf277al9mme6r3v5ah52qr96m.apps.googleusercontent.com',
-        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-        callback: async (resp) => {
-          if (resp.error) { console.error('Auth error:', resp); return; }
-          window._driveAccessToken = resp.access_token;
-          await window._fetchDriveUser();
-          window._updateSigninBar(true);
-        }
-      });
+      // Mark as ready — token client is initialised on first sign-in attempt
       window._driveInitDone = true;
-      console.log('✅ Google Drive ready');
+      console.log('✅ Google Drive APIs ready (gapi picker + gsi loaded)');
     }
   }
 
@@ -1177,7 +1168,9 @@ function buildSidebar() {
 }
 
 // ─── GOOGLE DRIVE CONFIG ────────────────────────────────────
-const PICKER_APP_ID = '714478709483';
+const GOOGLE_API_KEY   = 'AIzaSyCFSrPZ1l_531X5YQ7_nosyVbJMjbUJVdA';
+const GOOGLE_CLIENT_ID = '714478709483-qoe3n8lmf277al9mme6r3v5ah52qr96m.apps.googleusercontent.com';
+const PICKER_APP_ID    = '714478709483';
 
 // State lives on window._ — initialised in the inline <script> above
 
@@ -1194,16 +1187,31 @@ window._updateSigninBar = updateSigninBar; // forward ref — defined below
 
 async function handleDriveAuth() {
   if (window._driveAccessToken) {
+    // Sign out
     google.accounts.oauth2.revoke(window._driveAccessToken, () => {});
     window._driveAccessToken = null;
     window._driveUserInfo    = null;
     updateSigninBar(false);
   } else {
-    if (!window._driveInitDone) {
-      alert('Google APIs are still loading. Please wait a moment and try again.');
+    // Sign in
+    if (!window._gsiReady || typeof google === 'undefined' || !google.accounts) {
+      alert('Google Sign-in is still loading. Please wait a moment and try again.');
       return;
     }
-    window._driveTokenClient.requestAccessToken({ prompt: '' });
+    // Init token client fresh if needed
+    if (!window._driveTokenClient) {
+      window._driveTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+        callback: async (resp) => {
+          if (resp.error) { console.error('Auth error:', resp); return; }
+          window._driveAccessToken = resp.access_token;
+          await window._fetchDriveUser();
+          window._updateSigninBar(true);
+        }
+      });
+    }
+    window._driveTokenClient.requestAccessToken({ prompt: 'consent' });
   }
 }
 
@@ -1238,38 +1246,42 @@ function updateSigninBar(signedIn) {
 }
 
 function openDrivePicker(docIndex) {
+  // Guard: must be signed in
   if (!window._driveAccessToken) {
-    alert('Please sign in with Google first to upload files.');
+    alert('Please sign in with Google first (see the Sign in button above the table).');
     return;
   }
-  if (!window._gapiReady) {
-    alert('Google Picker is still loading. Please wait a moment and try again.');
-    return;
-  }
-  if (!window._driveInitDone) {
-    alert('Google Sign-in is still loading. Please wait a moment and try again.');
+  // Guard: picker library must be loaded
+  if (!window._gapiReady || typeof google === 'undefined' || !google.picker) {
+    alert('Google Picker is still loading. Please wait a few seconds and try again.');
     return;
   }
 
-  const uploadView = new google.picker.DocsUploadView()
-    .setIncludeFolders(true);
+  try {
+    // Upload view — lets user pick files from LOCAL computer
+    const uploadView = new google.picker.DocsUploadView()
+      .setIncludeFolders(true);
 
-  const driveView = new google.picker.DocsView()
-    .setIncludeFolders(true)
-    .setSelectFolderEnabled(false);
+    // Drive view — lets user pick existing Drive files
+    const driveView = new google.picker.DocsView(google.picker.ViewId.DOCS)
+      .setIncludeFolders(false)
+      .setSelectFolderEnabled(false);
 
-  const picker = new google.picker.PickerBuilder()
-    .setAppId(PICKER_APP_ID)
-    .setOAuthToken(window._driveAccessToken)
-    .setDeveloperKey(GOOGLE_API_KEY)
-    .setCallback((data) => pickerCallback(data, docIndex))
-    .setTitle('Upload or select file for: ' + DOCS[docIndex])
-    .addView(uploadView)
-    .addView(driveView)
-    .enableFeature(google.picker.Feature.NAV_HIDDEN, false)
-    .build();
+    const picker = new google.picker.PickerBuilder()
+      .setAppId(PICKER_APP_ID)
+      .setOAuthToken(window._driveAccessToken)
+      .setDeveloperKey(GOOGLE_API_KEY)
+      .addView(uploadView)
+      .addView(driveView)
+      .setTitle('Select or upload: ' + DOCS[docIndex])
+      .setCallback((data) => pickerCallback(data, docIndex))
+      .build();
 
-  picker.setVisible(true);
+    picker.setVisible(true);
+  } catch(err) {
+    console.error('Picker error:', err);
+    alert('Could not open file picker: ' + err.message);
+  }
 }
 
 async function pickerCallback(data, docIndex) {
