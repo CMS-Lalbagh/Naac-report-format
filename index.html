@@ -614,9 +614,121 @@
     .google-signin-bar { flex-direction: column; align-items: flex-start; }
   }
 
+  /* ── AUTH SCREEN ── */
+  .auth-screen {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: linear-gradient(135deg, #1F3864 0%, #2E75B6 60%, #1a5fa0 100%);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .auth-screen.show { display: flex; }
+
+  .auth-card {
+    background: #fff; border-radius: 16px; padding: 44px 40px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .auth-logo-badge {
+    display: inline-block;
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 800;
+    letter-spacing: 1px; padding: 5px 12px; border-radius: 5px;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .auth-inst { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .auth-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .auth-sub   { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 32px; }
+
+  .btn-google {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; padding: 13px 20px;
+    background: #fff; border: 2px solid #dadce0; border-radius: 10px;
+    font-size: 15px; font-weight: 600; color: #3c4043;
+    cursor: pointer; transition: all .18s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .btn-google:hover { background: #f8f9fa; border-color: #c0c4c8; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .btn-google:active { background: #f1f3f4; }
+  .btn-google svg { flex-shrink: 0; }
+
+  .auth-loading {
+    display: none; flex-direction: column; align-items: center; gap: 14px;
+    padding: 10px 0;
+  }
+  .auth-loading.show { display: flex; }
+  .auth-spinner {
+    width: 32px; height: 32px; border: 3px solid var(--steel-dark);
+    border-top-color: var(--blue); border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  .auth-msg {
+    margin-top: 14px; padding: 10px 13px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; display: none; text-align: left;
+  }
+  .auth-msg.error   { background: #fdf0f0; color: var(--danger); border: 1px solid #f5c6c6; display: block; }
+
+  .auth-footer {
+    margin-top: 24px; font-size: 11px; color: #aaa; line-height: 1.6;
+  }
+
+  /* ── USER PILL IN TOPBAR ── */
+  .user-pill {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 12px 4px 4px; border-radius: 20px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+    cursor: pointer; transition: background .15s;
+  }
+  .user-pill:hover { background: rgba(255,255,255,0.2); }
+  .user-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; flex-shrink: 0; overflow: hidden;
+  }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .user-name { font-size: 12px; font-weight: 600; color: #fff; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 768px) {
+    .auth-card { padding: 32px 22px; }
+    .user-name { display: none; }
+  }
 </style>
 </head>
 <body>
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen show" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo-badge">IQAC</div>
+    <div class="auth-title">Activity Report Tool</div>
+    <div class="auth-inst">Center for Management Studies · Jain (Deemed-to-be) University</div>
+    <div class="auth-sub">Sign in with your Google account to access and generate NAAC activity reports.</div>
+
+    <!-- Google Sign-In button -->
+    <button class="btn-google" id="googleSignInBtn" onclick="triggerGoogleSignIn()">
+      <svg width="20" height="20" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <!-- Loading state -->
+    <div class="auth-loading" id="authLoading">
+      <div class="auth-spinner"></div>
+      <span style="font-size:13px;color:var(--muted);">Signing you in…</span>
+    </div>
+
+    <div class="auth-msg" id="authErrMsg"></div>
+
+    <div class="auth-footer">
+      🔒 We only read your name and email from Google.<br/>No data is sent to any server.
+    </div>
+  </div>
+</div>
 
 <!-- TOP BAR -->
 <header class="topbar">
@@ -632,6 +744,10 @@
   <div class="topbar-actions">
     <button class="btn-top btn-reset" onclick="confirmReset()">Reset</button>
     <button class="btn-top btn-export-word" id="quickExportBtn" onclick="quickExport()" disabled>Export Word</button>
+    <div class="user-pill" id="userPill" onclick="doLogout()" title="Click to sign out" style="display:none;">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <span class="user-name" id="userNameLabel">User</span>
+    </div>
   </div>
 </header>
 
@@ -659,8 +775,8 @@
       <div class="card">
         <div class="card-title">Institution Details</div>
         <div class="card-body col2">
-          <div class="field full"><label>Institution Name <span class="req">*</span></label><input type="text" id="institutionName" placeholder="e.g. Jain University, Bengaluru"/></div>
-          <div class="field"><label>Campus / School / Faculty</label><input type="text" id="campus" placeholder="e.g. School of Engineering"/></div>
+          <div class="field full"><label>Institution Name <span class="req">*</span></label><input type="text" id="institutionName" value="Center for Management Studies - Jain (Deemed-to-be) University" readonly style="background:#f0f4fa;color:var(--navy);font-weight:600;cursor:default;"/></div>
+          <div class="field"><label>Campus / School / Faculty</label><input type="text" id="campus" value="Lalbagh Road Campus" readonly style="background:#f0f4fa;color:var(--navy);font-weight:600;cursor:default;"/></div>
           <div class="field"><label>Organising Department / Club / Cell <span class="req">*</span></label><input type="text" id="department" placeholder="e.g. Dept. of Computer Science / NSS Cell"/></div>
           <div class="field"><label>Academic Year <span class="req">*</span></label><input type="text" id="academicYear" placeholder="e.g. 2025-26"/></div>
         </div>
@@ -680,9 +796,7 @@
               <option>Seminar / Webinar</option>
               <option>Conference</option>
               <option>Student Training/Orientation</option>
-              <option>Faculty Training/Orientation</option>
               <option>Internship&Placement</option>
-              <option>Career Development Programme</option>
               <option>Counselling</option>
               <option>Faculty Development Programme (FDP)</option>
               <option>Cultural Festival</option>
@@ -693,7 +807,6 @@
               <option>Technical Fest / Exhibition</option>
               <option>Alumni Interaction</option>
               <option>Skill Development Programme</option>
-              <option>Student Activity</option>
               <option>Other</option>
             </select>
           </div>
@@ -796,10 +909,11 @@
     <div class="step-section" id="step4">
       <div class="section-header">
         <span class="section-tag">Section D</span>
-        <div class="section-title">Learning Outcomes</div>
-        <div class="section-subtitle">Record the competencies gained through the event</div>
+        <div class="section-title">Learning Outcomes, Course Outcomes & Programme Outcomes</div>
+        <div class="section-subtitle">Record competencies gained and map to CO/PO for OBE compliance</div>
       </div>
       <div class="card">
+        <div class="card-title">Learning Outcomes</div>
         <div class="card-body">
           <div class="field">
             <label>Learning Outcomes / Competencies Gained <span class="hint">Use Bloom's Taxonomy levels where possible</span></label>
@@ -807,14 +921,87 @@
           </div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-title">📘 Course Outcomes (CO) Mapping</div>
+        <div class="card-body">
+          <div class="field full">
+            <label>Course Outcomes Addressed <span class="hint">List COs from relevant courses that this event supports</span></label>
+            <textarea id="courseOutcomes" rows="4" placeholder="CO1: Students will demonstrate understanding of...&#10;CO2: Students will be able to apply...&#10;CO3: Students will analyse and evaluate..."></textarea>
+          </div>
+          <div class="field full">
+            <label>CO Mapping Justification <span class="hint">Explain how this event contributes to the listed COs</span></label>
+            <textarea id="coMapping" rows="3" placeholder="This event directly supports CO1 and CO2 by providing hands-on exposure to..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎓 Programme Outcomes (PO) Mapping</div>
+        <div class="card-body">
+          <div class="field full">
+            <label>Programme Outcomes Addressed <span class="hint">Map to NBA/NAAC POs — select all that apply</span></label>
+            <div class="checkbox-group" id="poCheckboxes">
+              <label class="cb-item"><input type="checkbox" id="po1" value="PO1"/><span>PO1 – Engineering Knowledge</span></label>
+              <label class="cb-item"><input type="checkbox" id="po2" value="PO2"/><span>PO2 – Problem Analysis</span></label>
+              <label class="cb-item"><input type="checkbox" id="po3" value="PO3"/><span>PO3 – Design/Development of Solutions</span></label>
+              <label class="cb-item"><input type="checkbox" id="po4" value="PO4"/><span>PO4 – Conduct Investigations</span></label>
+              <label class="cb-item"><input type="checkbox" id="po5" value="PO5"/><span>PO5 – Modern Tool Usage</span></label>
+              <label class="cb-item"><input type="checkbox" id="po6" value="PO6"/><span>PO6 – The Engineer and Society</span></label>
+              <label class="cb-item"><input type="checkbox" id="po7" value="PO7"/><span>PO7 – Environment & Sustainability</span></label>
+              <label class="cb-item"><input type="checkbox" id="po8" value="PO8"/><span>PO8 – Ethics</span></label>
+              <label class="cb-item"><input type="checkbox" id="po9" value="PO9"/><span>PO9 – Individual & Team Work</span></label>
+              <label class="cb-item"><input type="checkbox" id="po10" value="PO10"/><span>PO10 – Communication</span></label>
+              <label class="cb-item"><input type="checkbox" id="po11" value="PO11"/><span>PO11 – Project Management & Finance</span></label>
+              <label class="cb-item"><input type="checkbox" id="po12" value="PO12"/><span>PO12 – Life-long Learning</span></label>
+              <label class="cb-item"><input type="checkbox" id="pso1" value="PSO1"/><span>PSO1 – Programme Specific Outcome 1</span></label>
+              <label class="cb-item"><input type="checkbox" id="pso2" value="PSO2"/><span>PSO2 – Programme Specific Outcome 2</span></label>
+            </div>
+          </div>
+          <div class="field full">
+            <label>PO Attainment Remarks <span class="hint">Describe how the event contributes to attainment of the selected POs</span></label>
+            <textarea id="poRemarks" rows="3" placeholder="This event contributes to PO9 (Team Work) and PO10 (Communication) by..."></textarea>
+          </div>
+        </div>
+      </div>
+
       <div class="nav-bar">
         <button class="btn-nav btn-prev" onclick="goTo(3)">&lt; Event Description</button>
-        <button class="btn-nav btn-next" onclick="goTo(5)">Impact Assessment &gt;</button>
+        <button class="btn-nav btn-next" onclick="goTo(5)">NAAC Attributes &gt;</button>
       </div>
     </div>
 
-    <!-- SECTION 5: IMPACT -->
+    <!-- SECTION 5: NAAC ATTRIBUTES -->
     <div class="step-section" id="step5">
+      <div class="section-header">
+        <span class="section-tag">Section E</span>
+        <div class="section-title">NAAC Attribute Alignment</div>
+        <div class="section-subtitle">Map this event to NAAC Binary Accreditation Framework (10 Attributes) for SSR/AQAR documentation</div>
+      </div>
+
+      <div class="naac-legend">
+        <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#1F3864;"></div> Input Attributes (1–3)</div>
+        <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#2E75B6;"></div> Process Attributes (4–7)</div>
+        <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#2D8A4E;"></div> Outcome Attributes (8–10)</div>
+      </div>
+
+      <div class="attr-accordion" id="attrAccordion"></div>
+
+      <div class="attr-summary-bar" id="attrSummaryBar">
+        <div class="attr-summary-bar-label">📋 Selected Attribute Alignments</div>
+        <div class="attr-summary-tags" id="attrSummaryTags">
+          <span class="attr-sum-empty">No sub-attributes selected yet — expand an attribute above to select.</span>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(4)">&lt; Learning Outcomes</button>
+        <button class="btn-nav btn-next" onclick="goTo(6)">Impact Assessment &gt;</button>
+      </div>
+    </div>
+
+    <!-- SECTION 6: IMPACT -->
+    <div class="step-section" id="step6">
       <div class="section-header">
         <span class="section-tag">Section E</span>
         <div class="section-title">Impact Assessment & Quality Indicators</div>
@@ -830,13 +1017,13 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(4)">&lt; Learning Outcomes</button>
-        <button class="btn-nav btn-next" onclick="goTo(6)">Feedback Summary &gt;</button>
+        <button class="btn-nav btn-prev" onclick="goTo(5)">&lt; NAAC Attributes</button>
+        <button class="btn-nav btn-next" onclick="goTo(7)">Feedback Summary &gt;</button>
       </div>
     </div>
 
-    <!-- SECTION 6: FEEDBACK -->
-    <div class="step-section" id="step6">
+    <!-- SECTION 7: FEEDBACK -->
+    <div class="step-section" id="step7">
       <div class="section-header">
         <span class="section-tag">Section F</span>
         <div class="section-title">Feedback Summary & Analysis</div>
@@ -853,13 +1040,13 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(5)">&lt; Impact</button>
-        <button class="btn-nav btn-next" onclick="goTo(7)">Documents Checklist &gt;</button>
+        <button class="btn-nav btn-prev" onclick="goTo(6)">&lt; Impact</button>
+        <button class="btn-nav btn-next" onclick="goTo(8)">Documents Checklist &gt;</button>
       </div>
     </div>
 
-    <!-- SECTION 7: DOCUMENTS CHECKLIST -->
-    <div class="step-section" id="step7">
+    <!-- SECTION 8: DOCUMENTS CHECKLIST -->
+    <div class="step-section" id="step8">
       <div class="section-header">
         <span class="section-tag">Section G</span>
         <div class="section-title">Supporting Documents & Evidence Checklist</div>
@@ -889,13 +1076,13 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(6)">&lt; Feedback</button>
-        <button class="btn-nav btn-next" onclick="goTo(8)">Approval & Sign-off &gt;</button>
+        <button class="btn-nav btn-prev" onclick="goTo(7)">&lt; Feedback</button>
+        <button class="btn-nav btn-next" onclick="goTo(9)">Approval & Sign-off &gt;</button>
       </div>
     </div>
 
-    <!-- SECTION 8: APPROVAL -->
-    <div class="step-section" id="step8">
+    <!-- SECTION 9: APPROVAL -->
+    <div class="step-section" id="step9">
       <div class="section-header">
         <span class="section-tag">Section H</span>
         <div class="section-title">Approval, Verification & Signatures</div>
@@ -919,7 +1106,7 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(7)">&lt; Documents</button>
+        <button class="btn-nav btn-prev" onclick="goTo(8)">&lt; Documents</button>
         <button class="btn-nav btn-submit" id="submitBtn" onclick="generateReport()">Generate & Download Report</button>
       </div>
     </div>
@@ -961,7 +1148,8 @@ const STEPS = [
   { name: "Institution & Event", desc: "Basic identification" },
   { name: "Participation & Speakers", desc: "Attendance & speakers" },
   { name: "Event Description", desc: "Narrative & content" },
-  { name: "Learning Outcomes", desc: "Competencies gained" },
+  { name: "Learning Outcomes & CO/PO", desc: "Competencies & outcomes" },
+  { name: "NAAC Attributes", desc: "Accreditation alignment" },
   { name: "Impact Assessment", desc: "Impact & follow-up" },
   { name: "Feedback Summary", desc: "Observations & actions" },
   { name: "Documents Checklist", desc: "Evidence inventory" },
@@ -994,6 +1182,7 @@ function init() {
   buildSidebar();
   buildMobileStrip();
   buildDocsTable();
+  buildAccordion();
   addSpeaker();
   bindWordCount();
   updateProgress();
@@ -1323,7 +1512,7 @@ function updateProgress() {
   const pct = Math.round((currentStep / STEPS.length) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressText').textContent = `Section ${currentStep} of ${STEPS.length}`;
-  document.getElementById('quickExportBtn').disabled = currentStep < 4;
+  document.getElementById('quickExportBtn').disabled = currentStep < 5;
 }
 
 // ─── NAAC ATTRIBUTE DATA ────────────────────────────────────
@@ -1723,10 +1912,16 @@ function collectData() {
     objectives: v('objectives'),
     detailedReport: v('detailedReport'),
     methodology: v('methodology'),
-    // Section D
-    learningOutcomes: v('learningOutcomes'),
     sdgAlignment: v('sdgAlignment'),
-    // Section E
+    // Section D — Learning Outcomes + CO/PO
+    learningOutcomes: v('learningOutcomes'),
+    courseOutcomes: v('courseOutcomes'),
+    coMapping: v('coMapping'),
+    poSelected: Array.from(document.querySelectorAll('#poCheckboxes input[type=checkbox]:checked')).map(cb => cb.value).join(', '),
+    poRemarks: v('poRemarks'),
+    // Section E — NAAC Attributes
+    naacAttrs: getSelectedAttrsForExport(),
+    // Section F
     impactStudents: v('impactStudents'),
     impactFaculty: v('impactFaculty'),
     impactCommunity: v('impactCommunity'),
@@ -1882,12 +2077,35 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">SDG Alignment</td><td class="val">${d.sdgAlignment || '—'}</td></tr>
 </table>
 
-<h2>SECTION D — LEARNING OUTCOMES</h2>
+<h2>SECTION D — LEARNING OUTCOMES, COURSE OUTCOMES &amp; PROGRAMME OUTCOMES</h2>
 <table>
   <tr><td class="lbl">Learning Outcomes</td><td class="val" style="white-space:pre-line;">${d.learningOutcomes || '—'}</td></tr>
+  <tr><td class="lbl">Course Outcomes (CO) Addressed</td><td class="val" style="white-space:pre-line;">${d.courseOutcomes || '—'}</td></tr>
+  <tr><td class="lbl">CO Mapping Justification</td><td class="val" style="white-space:pre-line;">${d.coMapping || '—'}</td></tr>
+  <tr><td class="lbl">Programme Outcomes (PO) Addressed</td><td class="val">${d.poSelected || '—'}</td></tr>
+  <tr><td class="lbl">PO Attainment Remarks</td><td class="val" style="white-space:pre-line;">${d.poRemarks || '—'}</td></tr>
 </table>
 
-<h2>SECTION E — IMPACT ASSESSMENT</h2>
+<h2>SECTION E — NAAC ATTRIBUTE ALIGNMENT</h2>
+<table>
+  <thead><tr style="background:#2E75B6;color:#fff;">
+    <th style="padding:8px 12px;border:1px solid #C8D9EC;">#</th>
+    <th style="padding:8px 12px;border:1px solid #C8D9EC;">Attribute / Sub-Attribute</th>
+    <th style="padding:8px 12px;border:1px solid #C8D9EC;">Relevance to this Event</th>
+  </tr></thead>
+  <tbody>${d.naacAttrs && d.naacAttrs.length ? d.naacAttrs.map((a, i) => {
+    const parts = a.split(': ');
+    const label = parts[0] || a;
+    const relevance = parts.slice(1).join(': ') || '—';
+    return `<tr style="background:${i%2===0?'#fff':'#f8fafd'}">
+      <td style="padding:7px 10px;border:1px solid #C8D9EC;text-align:center;color:#888;">${i+1}</td>
+      <td style="padding:7px 12px;border:1px solid #C8D9EC;font-weight:bold;color:#1F3864;">${label}</td>
+      <td style="padding:7px 12px;border:1px solid #C8D9EC;">${relevance}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="3" style="padding:10px 12px;border:1px solid #C8D9EC;color:#888;text-align:center;font-style:italic;">No NAAC attributes mapped for this event.</td></tr>'}</tbody>
+</table>
+
+<h2>SECTION F — IMPACT ASSESSMENT</h2>
 <table>
   <tr><td class="lbl">Impact on Students</td><td class="val">${d.impactStudents || '—'}</td></tr>
   <tr><td class="lbl">Impact on Faculty / Institution</td><td class="val">${d.impactFaculty || '—'}</td></tr>
@@ -1896,7 +2114,7 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Recommendations</td><td class="val">${d.recommendations || '—'}</td></tr>
 </table>
 
-<h2>SECTION F — SUPPORTING DOCUMENTS CHECKLIST</h2>
+<h2>SECTION G — SUPPORTING DOCUMENTS CHECKLIST</h2>
 <table>
   <thead><tr style="background:#2E75B6;color:#fff;">
     <th style="padding:8px 10px;border:1px solid #C8D9EC;width:40px;">#</th>
@@ -1907,7 +2125,7 @@ function buildWordDoc(data, aiNarrative) {
   <tbody>${docsRows}</tbody>
 </table>
 
-<h2>SECTION G — FEEDBACK SUMMARY &amp; ANALYSIS</h2>
+<h2>SECTION H — FEEDBACK SUMMARY &amp; ANALYSIS</h2>
 <table>
   <tr><td class="lbl">Feedback Forms Collected</td><td class="val">${d.feedbackTotal || '—'}</td></tr>
   <tr><td class="lbl">Mode of Feedback</td><td class="val">${d.feedbackMode || '—'}</td></tr>
@@ -1915,7 +2133,7 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Corrective Actions</td><td class="val">${d.correctiveActions || '—'}</td></tr>
 </table>
 
-<h2>SECTION H — APPROVAL &amp; VERIFICATION</h2>
+<h2>SECTION I — APPROVAL &amp; VERIFICATION</h2>
 <table>
   <tr><td class="lbl">Report Compiled By</td><td class="val">${d.compiledByName || '—'}</td></tr>
   <tr><td class="lbl">Designation</td><td class="val">${d.compiledByDesig || '—'}</td></tr>
@@ -1991,7 +2209,7 @@ async function quickExport() {
 // ─── RESET ──────────────────────────────────────────────────
 function confirmReset() {
   if (confirm('Reset all form data? This cannot be undone.')) {
-    document.querySelectorAll('input[type=text], input[type=date], input[type=number], input[type=email], textarea, select').forEach(el => el.value = '');
+    document.querySelectorAll('input[type=text]:not([readonly]), input[type=date], input[type=number], input[type=email], textarea, select').forEach(el => el.value = '');
     document.querySelectorAll('.cb-item input:checked').forEach(cb => { cb.checked = false; cb.closest('.cb-item').classList.remove('checked'); });
     selectedSubAttrs = {};
     buildAccordion();
@@ -2001,7 +2219,151 @@ function confirmReset() {
   }
 }
 
+// ─── AUTH — Google Sign-In ───────────────────────────────────
+const SESSION_KEY = 'naac_session_v1';
+
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; }
+}
+function saveSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession()  { localStorage.removeItem(SESSION_KEY); }
+
+function triggerGoogleSignIn() {
+  if (!window._gsiReady || typeof google === 'undefined') {
+    showAuthError('Google Sign-In is still loading. Please wait a moment and try again.');
+    return;
+  }
+
+  document.getElementById('googleSignInBtn').style.display = 'none';
+  document.getElementById('authLoading').classList.add('show');
+  document.getElementById('authErrMsg').className = 'auth-msg';
+
+  // Use the id.initialize / prompt flow (One Tap + fallback popup)
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: false,
+  });
+
+  // Try One Tap first; if user cancels, fall back to popup
+  google.accounts.id.prompt(notification => {
+    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+      // One Tap not shown — open popup instead
+      google.accounts.id.renderButton(
+        document.createElement('div'), // dummy
+        { theme: 'outline', size: 'large' }
+      );
+      // Use token client for explicit popup
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'openid profile email',
+        callback: async (resp) => {
+          if (resp.error) {
+            resetAuthBtn();
+            showAuthError('Sign-in was cancelled or failed. Please try again.');
+            return;
+          }
+          // Fetch user info with the access token
+          try {
+            const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: 'Bearer ' + resp.access_token }
+            });
+            const profile = await r.json();
+            completeSignIn({
+              name:    profile.name  || profile.email,
+              email:   profile.email,
+              picture: profile.picture || null,
+            });
+          } catch(e) {
+            resetAuthBtn();
+            showAuthError('Could not fetch your Google profile. Please try again.');
+          }
+        }
+      });
+      tokenClient.requestAccessToken({ prompt: 'select_account' });
+    }
+  });
+}
+
+// Called by One Tap with a JWT credential
+function handleGoogleCredential(response) {
+  try {
+    // Decode the JWT payload (no verification needed client-side — Google signed it)
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    completeSignIn({
+      name:    payload.name  || payload.email,
+      email:   payload.email,
+      picture: payload.picture || null,
+    });
+  } catch(e) {
+    resetAuthBtn();
+    showAuthError('Could not read your Google profile. Please try again.');
+  }
+}
+
+function completeSignIn(user) {
+  saveSession(user);
+  showApp(user);
+}
+
+function showApp(user) {
+  document.getElementById('authScreen').classList.remove('show');
+  resetAuthBtn();
+
+  const pill   = document.getElementById('userPill');
+  const avatar = document.getElementById('userAvatar');
+  const label  = document.getElementById('userNameLabel');
+
+  // Show photo or initials
+  if (user.picture) {
+    avatar.innerHTML = `<img src="${user.picture}" alt="${user.name}" referrerpolicy="no-referrer"/>`;
+  } else {
+    const initials = user.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    avatar.textContent = initials;
+  }
+  label.textContent = user.name;
+  pill.style.display = 'flex';
+  pill.title = `Signed in as ${user.email} — click to sign out`;
+}
+
+function doLogout() {
+  if (!confirm('Sign out of the NAAC Report Tool?')) return;
+  // Revoke Google session if token available
+  if (window._driveAccessToken) {
+    try { google.accounts.oauth2.revoke(window._driveAccessToken, () => {}); } catch(e) {}
+    window._driveAccessToken = null;
+  }
+  try { google.accounts.id.disableAutoSelect(); } catch(e) {}
+  clearSession();
+  document.getElementById('userPill').style.display = 'none';
+  document.getElementById('authErrMsg').className = 'auth-msg';
+  document.getElementById('authScreen').classList.add('show');
+}
+
+function resetAuthBtn() {
+  document.getElementById('googleSignInBtn').style.display = 'flex';
+  document.getElementById('authLoading').classList.remove('show');
+}
+
+function showAuthError(msg) {
+  resetAuthBtn();
+  const el = document.getElementById('authErrMsg');
+  el.textContent = msg;
+  el.className = 'auth-msg error';
+}
+
+function checkSession() {
+  const session = getSession();
+  if (session && session.email) {
+    showApp(session);
+  } else {
+    document.getElementById('authScreen').classList.add('show');
+  }
+}
+
 // ─── START ──────────────────────────────────────────────────
+checkSession();
 init();
 </script>
 </body>
