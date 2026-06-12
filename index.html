@@ -5,53 +5,51 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>NAAC Activity Report Tool</title>
 <script>
-  // Load gapi first, then gsi
-  function loadGoogleAPIs() {
-    // Load gapi
-    const gapiScript = document.createElement('script');
-    gapiScript.src = 'https://apis.google.com/js/api.js';
-    gapiScript.onload = () => {
-      gapi.load('picker:client', () => {
-        gapi.client.init({
-          apiKey: 'AIzaSyCFSrPZ1l_531X5YQ7_nosyVbJMjbUJVdA',
-          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
-        }).then(() => {
-          window._gapiReady = true;
-          tryFinishDriveInit();
-        });
-      });
-    };
-    document.head.appendChild(gapiScript);
-
-    // Load gsi (Google Identity Services)
-    const gsiScript = document.createElement('script');
-    gsiScript.src = 'https://accounts.google.com/gsi/client';
-    gsiScript.onload = () => {
-      window._gsiReady = true;
-      tryFinishDriveInit();
-    };
-    document.head.appendChild(gsiScript);
-  }
+  // Simplified fast loader — no discovery docs needed, we use fetch() directly
+  window._driveInitDone    = false;
+  window._gapiReady        = false;
+  window._gsiReady         = false;
+  window._driveAccessToken = null;
+  window._driveUserInfo    = null;
 
   function tryFinishDriveInit() {
     if (window._gapiReady && window._gsiReady) {
-      // Both loaded — init token client
       window._driveTokenClient = google.accounts.oauth2.initTokenClient({
         client_id: '714478709483-qoe3n8lmf277al9mme6r3v5ah52qr96m.apps.googleusercontent.com',
         scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
         callback: async (resp) => {
-          if (resp.error) { console.error(resp); return; }
+          if (resp.error) { console.error('Auth error:', resp); return; }
           window._driveAccessToken = resp.access_token;
           await window._fetchDriveUser();
           window._updateSigninBar(true);
         }
       });
       window._driveInitDone = true;
-      console.log('Google Drive APIs ready');
+      console.log('✅ Google Drive ready');
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadGoogleAPIs);
+  // Load gapi (only need picker — no client init needed)
+  const _gapiScript = document.createElement('script');
+  _gapiScript.src = 'https://apis.google.com/js/api.js';
+  _gapiScript.onload = () => {
+    gapi.load('picker', () => {
+      window._gapiReady = true;
+      tryFinishDriveInit();
+    });
+  };
+  document.head.appendChild(_gapiScript);
+
+  // Load Google Identity Services
+  const _gsiScript = document.createElement('script');
+  _gsiScript.src = 'https://accounts.google.com/gsi/client';
+  _gsiScript.async = true;
+  _gsiScript.defer = true;
+  _gsiScript.onload = () => {
+    window._gsiReady = true;
+    tryFinishDriveInit();
+  };
+  document.head.appendChild(_gsiScript);
 </script>
 <style>
   :root {
@@ -1181,12 +1179,7 @@ function buildSidebar() {
 // ─── GOOGLE DRIVE CONFIG ────────────────────────────────────
 const PICKER_APP_ID = '714478709483';
 
-// These live on window._ so the inline script block can share state
-window._driveAccessToken = null;
-window._driveUserInfo    = null;
-window._driveInitDone    = false;
-window._gapiReady        = false;
-window._gsiReady         = false;
+// State lives on window._ — initialised in the inline <script> above
 
 window._fetchDriveUser = async function() {
   try {
@@ -1249,8 +1242,12 @@ function openDrivePicker(docIndex) {
     alert('Please sign in with Google first to upload files.');
     return;
   }
+  if (!window._gapiReady) {
+    alert('Google Picker is still loading. Please wait a moment and try again.');
+    return;
+  }
   if (!window._driveInitDone) {
-    alert('Google Drive is still loading. Please wait a few seconds and try again.');
+    alert('Google Sign-in is still loading. Please wait a moment and try again.');
     return;
   }
 
