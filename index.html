@@ -617,207 +617,10 @@
 </style>
 </head>
 <body>
-
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="topbar-left">
-    <div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="topbar-badge">IQAC</span>
-        <span class="topbar-title">Activity Report Tool</span>
-      </div>
-      <div class="topbar-sub">NAAC Binary Accreditation — 10 Attributes Framework</div>
-    </div>
-  </div>
-  <div class="topbar-actions">
-    <button class="btn-top btn-reset" onclick="confirmReset()">↺ Reset Form</button>
-    <button class="btn-top btn-export-word" id="quickExportBtn" onclick="quickExport()" disabled>⬇ Export Word</button>
-  </div>
-</div>
-
-<!-- MOBILE STEP STRIP -->
-<div class="mobile-step-strip" id="mobileStepStrip">
-  <!-- built by JS -->
-</div>
-
-<!-- LAYOUT -->
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-label">Form Sections</div>
-    <!-- steps injected by JS -->
-  </nav>
-
-  <!-- MAIN AREA -->
-  <main class="main" id="mainArea">
-
-    <!-- PROGRESS -->
-    <div class="progress-row" id="progressRow">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:11%"></div></div>
-      <div class="progress-text" id="progressText">Section 1 of 9</div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 1: INSTITUTION & EVENT ID
-    ════════════════════════════════════════════════ -->
-    <div class="step-section active" id="step1">
-      <div class="section-header">
-        <span class="section-tag">Section A</span>
-        <div class="section-title">Institutional & Event Identification</div>
-        <div class="section-subtitle">Basic details for IQAC records and DVV verification</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🏛 Institution Details</div>
-        <div class="card-body col2">
-          <div class="field full"><label>Institution Name <span class="req">*</span></label><input type="text" id="institutionName" placeholder="e.g. Jain University, Bengaluru"/></div>
-          <div class="field"><label>Campus / School / Faculty</label><input type="text" id="campus" placeholder="e.g. School of Engineering"/></div>
-          <div class="field"><label>Organising Department / Club / Cell <span class="req">*</span></label><input type="text" id="department" placeholder="e.g. Dept. of Computer Science / NSS Cell"/></div>
-          <div class="field"><label>Academic Year <span class="req">*</span></label><input type="text" id="academicYear" placeholder="e.g. 2025–26"/></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📅 Event Details</div>
-        <div class="card-body col2">
-          <div class="field full"><label>Event Title <span class="req">*</span></label><input type="text" id="eventTitle" placeholder="Full name of the event"/></div>
-          <div class="field full">
-            <label>Event Type <span class="req">*</span></label>
-            <select id="eventType">
-              <option value="">— Select —</option>
-              <option>Guest Lecture</option>
-              <option>Workshop</option>
-              <option>Seminar / Webinar</option>
-              <option>Conference</option>
-              <option>Student Training/Orientation</option>
-              <option>Internship&Placement</option>
-              <option>Counselling</option>
-              <option>Faculty Development Programme (FDP)</option>
-              <option>Cultural Festival</option>
-              <option>Sports Event</option>
-              <option>Community Outreach / UBA</option>
-              <option>Industry Visit</option>
-              <option>Awareness Campaign</option>
-              <option>Technical Fest / Exhibition</option>
-              <option>Alumni Interaction</option>
-              <option>Skill Development Programme</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="startDate"/></div>
-          <div class="field"><label>End Date</label><input type="date" id="endDate"/></div>
-          <div class="field"><label>Duration <span class="hint">Hours / Days</span></label><input type="text" id="duration" placeholder="e.g. 3 hours / 2 days"/></div>
-          <div class="field"><label>Mode</label>
-            <select id="mode"><option value="">— Select —</option><option>Offline</option><option>Online</option><option>Hybrid</option></select>
-          </div>
-          <div class="field full"><label>Venue</label><input type="text" id="venue" placeholder="e.g. Seminar Hall, Block B / Zoom Meeting"/></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">👤 Coordinators</div>
-        <div class="card-body col2">
-          <div class="field"><label>Faculty Coordinator(s)</label><input type="text" id="facultyCoord" placeholder="Name(s) and designation"/></div>
-          <div class="field"><label>Student Coordinator(s)</label><input type="text" id="studentCoord" placeholder="Name(s) and roll number"/></div>
-        </div>
-      </div>
-      <div class="nav-bar"><div></div><button class="btn-nav btn-next" onclick="goTo(2)">Participants & Guest →</button></div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 2: PARTICIPATION
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step2">
-      <div class="section-header">
-        <span class="section-tag">Section C</span>
-        <div class="section-title">Participation & Guest / Speaker Profile</div>
-        <div class="section-subtitle">Required for NAAC Attribute 5 (Student Outcomes) and DVV Clarification</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">👥 Participant Count</div>
-        <div class="card-body col3">
-          <div class="field"><label>Students</label><input type="number" id="studentsCount" placeholder="0" min="0"/></div>
-          <div class="field"><label>Faculty</label><input type="number" id="facultyCount" placeholder="0" min="0"/></div>
-          <div class="field"><label>Non-Teaching Staff</label><input type="number" id="ntStaffCount" placeholder="0" min="0"/></div>
-          <div class="field"><label>Participants from Other Institutions</label><input type="text" id="externalCount" placeholder="Count and institution names"/></div>
-          <div class="field"><label>Target Audience</label>
-            <select id="targetAudience">
-              <option value="">— Select —</option>
-              <option>Intra-Departmental</option>
-              <option>Intra-University</option>
-              <option>Inter-University</option>
-              <option>Industry Professionals</option>
-              <option>Community / General Public</option>
-            </select>
-          </div>
-          <div class="field"><label>Collaborators / Sponsors</label><input type="text" id="sponsors" placeholder="Name and role (if any)"/></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🎤 Guest / Resource Person Profile</div>
-        <div class="card-body col2">
-          <div class="field"><label>Name</label><input type="text" id="guestName" placeholder="Full name"/></div>
-          <div class="field"><label>Designation</label><input type="text" id="guestDesig" placeholder="e.g. Senior Data Scientist"/></div>
-          <div class="field"><label>Organisation / Institution</label><input type="text" id="guestOrg" placeholder="Current employer or institution"/></div>
-          <div class="field"><label>Topic / Title of Session</label><input type="text" id="guestTopic" placeholder="Title of talk or presentation"/></div>
-          <div class="field full"><label>Brief Profile of Guest <span class="hint">~50 words</span></label><textarea id="guestProfile" rows="3" placeholder="Short bio highlighting relevant expertise..."></textarea></div>
-        </div>
-      </div>
-
-      <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(1)">← Institution Details</button>
-        <button class="btn-nav btn-next" onclick="goTo(3)">NAAC Mapping →</button>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 3: NAAC MAPPING
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
-      <div class="section-header">
-        <span class="section-tag">Section B</span>
-        <div class="section-title">NAAC Attribute & Sub-Attribute Mapping</div>
-        <div class="section-subtitle">Select the specific sub-attributes this event addresses — required for SSR/AQAR and DVV evidence tagging</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📊 NAAC Binary Accreditation — 10 Attributes with Sub-Indicators</div>
-        <div class="card-body" style="gap:10px;">
-
-          <div class="naac-legend">
-            <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#1F3864;"></div>INPUT Attributes (1–3) — Weightage: 25%</div>
-            <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#2E75B6;"></div>PROCESS Attributes (4–7) — Weightage: 75%</div>
-            <div class="naac-legend-item"><div class="naac-legend-dot" style="background:#2D8A4E;"></div>OUTCOME Attributes (8–10) — Weightage: 75%</div>
-          </div>
-
-          <div class="attr-accordion" id="attrAccordion">
-            <!-- Built by JS -->
-          </div>
-
-          <!-- Summary bar -->
-          <div class="attr-summary-bar">
-            <div class="attr-summary-bar-label">Selected Sub-Attributes</div>
-            <div class="attr-summary-tags" id="attrSummaryTags">
-              <span class="attr-sum-empty">No sub-attributes selected yet — expand an attribute above to select.</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(2)">← Participation</button>
-        <button class="btn-nav btn-next" onclick="goTo(4)">Event Description →</button>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════
          SECTION 4: EVENT DESCRIPTION
     ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step4">
+    <div class="step-section" id="step3">
       <div class="section-header">
         <span class="section-tag">Section D</span>
         <div class="section-title">Event Description & Content</div>
@@ -836,60 +639,8 @@
             <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="wordCount">Words: 0</div>
           </div>
           <div class="field">
-            <label>Key Topics / Sessions Covered</label>
-            <textarea id="keyTopics" rows="3" placeholder="Session 1: Introduction to Machine Learning&#10;Session 2: Hands-on Python Workshop&#10;Session 3: Q&A and Networking"></textarea>
-          </div>
-          <div class="field">
             <label>Methodologies / Pedagogy Used</label>
             <textarea id="methodology" rows="3" placeholder="e.g. Interactive lecture, hands-on workshop, panel discussion, case study analysis, role-play, live demonstration..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(3)">← NAAC Mapping</button>
-        <button class="btn-nav btn-next" onclick="goTo(5)">Learning Outcomes →</button>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         SECTION 5: LEARNING OUTCOMES
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step5">
-      <div class="section-header">
-        <span class="section-tag">Section E</span>
-        <div class="section-title">Learning Outcomes & Outcome Mapping</div>
-        <div class="section-subtitle">Critical for NAAC Attributes 5 & 8 — maps event to PO/CO and graduate attributes</div>
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <div class="field">
-            <label>Learning Outcomes / Competencies Gained <span class="hint">Use Bloom's Taxonomy levels where possible</span></label>
-            <textarea id="learningOutcomes" rows="4" placeholder="1. Students will be able to APPLY ML algorithms to real datasets (Apply level)&#10;2. Students will ANALYSE industry-grade code and tools (Analyse level)&#10;3. Participants will EVALUATE ethical considerations in AI (Evaluate level)"></textarea>
-          </div>
-          <div class="field">
-            <label>Programme Outcome (PO) / Course Outcome (CO) Alignment <span class="hint">e.g. PO3, PO6, CO2 — refer to your OBE mapping</span></label>
-            <input type="text" id="poCoMapping" placeholder="e.g. PO1, PO3, PO12, CO2, CO5"/>
-          </div>
-          <div class="field">
-            <label>Graduate Attributes Addressed</label>
-            <div class="checkbox-group" id="gradAttrs">
-              <label class="cb-item"><input type="checkbox" value="Critical Thinking"/><span>Critical Thinking</span></label>
-              <label class="cb-item"><input type="checkbox" value="Communication Skills"/><span>Communication Skills</span></label>
-              <label class="cb-item"><input type="checkbox" value="Ethics & Values"/><span>Ethics & Values</span></label>
-              <label class="cb-item"><input type="checkbox" value="Sustainability"/><span>Sustainability</span></label>
-              <label class="cb-item"><input type="checkbox" value="Global Competence"/><span>Global Competence</span></label>
-              <label class="cb-item"><input type="checkbox" value="Problem Solving"/><span>Problem Solving</span></label>
-              <label class="cb-item"><input type="checkbox" value="Digital Literacy"/><span>Digital Literacy</span></label>
-              <label class="cb-item"><input type="checkbox" value="Leadership"/><span>Leadership</span></label>
-              <label class="cb-item"><input type="checkbox" value="Teamwork & Collaboration"/><span>Teamwork</span></label>
-              <label class="cb-item"><input type="checkbox" value="Research Aptitude"/><span>Research Aptitude</span></label>
-            </div>
-          </div>
-          <div class="field">
-            <label>Industry / Real-World Relevance</label>
-            <textarea id="industryRelevance" rows="3" placeholder="Describe how this event connects to current industry trends, job market demands, or real-world applications..."></textarea>
           </div>
           <div class="field">
             <label>SDG Alignment <span class="hint">UN Sustainable Development Goals (if applicable)</span></label>
@@ -899,19 +650,44 @@
       </div>
 
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(4)">← Event Description</button>
-        <button class="btn-nav btn-next" onclick="goTo(6)">Impact Assessment →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(2)">&lt; Participation</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">Learning Outcomes →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 5: LEARNING OUTCOMES
+    ════════════════════════════════════════════════ -->
+    <div class="step-section" id="step3">
+      <div class="section-header">
+        <span class="section-tag">Section E</span>
+        <div class="section-title">Learning Outcomes</div>
+        <div class="section-subtitle">Record the competencies gained through the event</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="field">
+            <label>Learning Outcomes / Competencies Gained <span class="hint">Use Bloom's Taxonomy levels where possible</span></label>
+            <textarea id="learningOutcomes" rows="4" placeholder="1. Students will be able to APPLY ML algorithms to real datasets (Apply level)&#10;2. Students will ANALYSE industry-grade code and tools (Analyse level)&#10;3. Participants will EVALUATE ethical considerations in AI (Evaluate level)"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(3)">← Event Description</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">Impact Assessment →</button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════
          SECTION 6: IMPACT
     ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step6">
+    <div class="step-section" id="step3">
       <div class="section-header">
         <span class="section-tag">Section F</span>
         <div class="section-title">Impact Assessment & Quality Indicators</div>
-        <div class="section-subtitle">Evidence of impact is mandatory under NAAC Binary Accreditation — photos alone are insufficient</div>
+        <div class="section-subtitle">Capture measurable and qualitative impact for institutional records</div>
       </div>
 
       <div class="card">
@@ -919,26 +695,25 @@
           <div class="field"><label>Impact on Students / Participants</label><textarea id="impactStudents" rows="3" placeholder="Describe observable changes: skills gained, motivation, awareness, behaviour shift..."></textarea></div>
           <div class="field"><label>Impact on Faculty / Institution</label><textarea id="impactFaculty" rows="3" placeholder="Curriculum enrichment, research collaboration, new industry linkage, MoU initiated..."></textarea></div>
           <div class="field"><label>Community / Societal Impact <span class="hint">Relevant for Criterion 3 / Attr-6 outreach activities</span></label><textarea id="impactCommunity" rows="3" placeholder="If applicable — clean village drive, health awareness, women empowerment, etc."></textarea></div>
-          <div class="field"><label>Evidence of Impact Available</label><input type="text" id="evidenceImpact" placeholder="e.g. Pre/post test scores, feedback summary (avg 4.3/5), 3 certifications issued, media coverage in XYZ"/></div>
           <div class="field"><label>MoU / Collaboration Established</label><input type="text" id="mouDetails" placeholder="Organisation name and nature of collaboration (if any)"/></div>
           <div class="field"><label>Recommendations / Follow-Up Actions</label><textarea id="recommendations" rows="3" placeholder="What should be done next? E.g. organise a follow-up hands-on lab, invite speaker again for advanced session..."></textarea></div>
         </div>
       </div>
 
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(5)">← Learning Outcomes</button>
-        <button class="btn-nav btn-next" onclick="goTo(7)">Feedback Summary →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(3)">← Learning Outcomes</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">Feedback Summary →</button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════
          SECTION 7: FEEDBACK
     ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step7">
+    <div class="step-section" id="step3">
       <div class="section-header">
         <span class="section-tag">Section H</span>
         <div class="section-title">Feedback Summary & Analysis</div>
-        <div class="section-subtitle">Quantitative feedback analysis required for NAAC Attributes 5 & 7</div>
+        <div class="section-subtitle">Feedback observations and actions taken</div>
       </div>
 
       <div class="card">
@@ -947,23 +722,21 @@
           <div class="field"><label>Mode of Feedback</label>
             <select id="feedbackMode"><option value="">— Select —</option><option>Paper Forms</option><option>Google Form</option><option>Institutional MIS Portal</option><option>Mixed</option></select>
           </div>
-          <div class="field"><label>Overall Average Rating <span class="hint">Out of 5 or 10</span></label><input type="text" id="avgRating" placeholder="e.g. 4.3 / 5"/></div>
-          <div class="field"><label>% Participants Rating 'Excellent' or 'Good'</label><input type="text" id="positivePct" placeholder="e.g. 87%"/></div>
           <div class="field full"><label>Key Observations from Feedback</label><textarea id="feedbackObservations" rows="3" placeholder="Positive: Participants appreciated the practical demonstrations and expert insights.&#10;Suggestions: More time for Q&A, additional hands-on exercises requested."></textarea></div>
           <div class="field full"><label>Corrective Actions Planned</label><textarea id="correctiveActions" rows="3" placeholder="Based on feedback, next edition will include a dedicated 30-minute Q&A session and printed reference materials..."></textarea></div>
         </div>
       </div>
 
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(6)">← Impact</button>
-        <button class="btn-nav btn-next" onclick="goTo(8)">Documents Checklist →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(3)">← Impact</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">Documents Checklist →</button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════
          SECTION 8: DOCUMENTS CHECKLIST
     ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step8">
+    <div class="step-section" id="step3">
       <div class="section-header">
         <span class="section-tag">Section G</span>
         <div class="section-title">Supporting Documents & Evidence Checklist</div>
@@ -1000,50 +773,20 @@
       </div>
 
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(7)">← Feedback</button>
-        <button class="btn-nav btn-next" onclick="goTo(9)">Approval & Sign-off →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(3)">← Feedback</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">Approval & Sign-off →</button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════
          SECTION 9: APPROVAL
     ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step9">
+    <div class="step-section" id="step3">
       <div class="section-header">
         <span class="section-tag">Section I</span>
         <div class="section-title">Approval, Verification & Signatures</div>
-        <div class="section-subtitle">Multi-level approval chain required by NAAC quality assurance framework</div>
+        <div class="section-subtitle">Final compilation and approval details</div>
       </div>
-
-      <div class="card">
-        <div class="card-title">📝 Compiled By</div>
-        <div class="card-body col2">
-          <div class="field"><label>Name</label><input type="text" id="compiledByName" placeholder="Full name"/></div>
-          <div class="field"><label>Designation</label><input type="text" id="compiledByDesig" placeholder="e.g. Assistant Professor"/></div>
-          <div class="field"><label>Date of Submission</label><input type="date" id="submissionDate"/></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">✅ Verification Chain</div>
-        <div class="card-body">
-          <div class="sig-row">
-            <div class="sig-block">
-              <label>Faculty In-Charge</label>
-              <input type="text" id="sigFaculty" placeholder="Name"/>
-              <input type="text" id="sigFacultyDate" placeholder="Date" style="margin-top:8px;"/>
-            </div>
-            <div class="sig-block">
-              <label>Head of Department</label>
-              <input type="text" id="sigHOD" placeholder="Name"/>
-              <input type="text" id="sigHODDate" placeholder="Date" style="margin-top:8px;"/>
-            </div>
-            <div class="sig-block">
-              <label>IQAC Coordinator</label>
-              <input type="text" id="sigIQAC" placeholder="Name"/>
-              <input type="text" id="sigIQACRemark" placeholder="Remarks" style="margin-top:8px;"/>
-            </div>
-          </div>
           <div class="sig-row" style="margin-top:14px;">
             <div class="sig-block" style="grid-column:1/4;">
               <label>Principal / Dean / Director (Final Approval)</label>
@@ -1054,7 +797,7 @@
       </div>
 
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(8)">← Documents</button>
+        <button class="btn-nav btn-prev" onclick="goTo(3)">← Documents</button>
         <button class="btn-nav btn-submit" id="submitBtn" onclick="generateReport()">⬇ Generate & Download Report</button>
       </div>
     </div>
@@ -1093,14 +836,13 @@
 // ─────────────────────────────────────────────────────────────
 const STEPS = [
   { name: "Institution & Event", desc: "Basic identification" },
-  { name: "Participation & Guest", desc: "Attendance & speaker" },
-  { name: "NAAC Mapping", desc: "10 Attributes" },
+  { name: "Participation & Speakers", desc: "Attendance & speakers" },
   { name: "Event Description", desc: "Narrative & content" },
-  { name: "Learning Outcomes", desc: "PO/CO & competencies" },
-  { name: "Impact Assessment", desc: "Evidence & outcomes" },
-  { name: "Feedback Summary", desc: "Analysis & ratings" },
+  { name: "Learning Outcomes", desc: "Competencies gained" },
+  { name: "Impact Assessment", desc: "Impact & follow-up" },
+  { name: "Feedback Summary", desc: "Observations & actions" },
   { name: "Documents Checklist", desc: "Evidence inventory" },
-  { name: "Approval & Sign-off", desc: "Multi-level approval" },
+  { name: "Approval & Sign-off", desc: "Compilation & approval" },
 ];
 
 const DOCS = [
@@ -1128,8 +870,8 @@ let generatedDocBlob = null;
 function init() {
   buildSidebar();
   buildMobileStrip();
-  buildAccordion();
   buildDocsTable();
+  addSpeaker();
   bindWordCount();
   updateProgress();
 }
@@ -1149,7 +891,52 @@ function buildMobileStrip() {
 
 function scrollMobileStripTo(step) {
   const pill = document.getElementById('mobilePill' + step);
-  if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }
+
+function addSpeaker(data = {}) {
+  const container = document.getElementById('speakersContainer');
+  if (!container) return;
+  const index = container.children.length + 1;
+  const card = document.createElement('div');
+  card.className = 'speaker-card';
+  card.style.cssText = 'border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;background:#f8fafd;';
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
+      <strong style="color:var(--navy);font-size:13px;">Speaker ${index}</strong>
+      <button type="button" class="btn-nav btn-prev" onclick="removeSpeaker(this)" style="padding:6px 10px;font-size:12px;">Remove</button>
+    </div>
+    <div class="card-body col2" style="padding:0;">
+      <div class="field"><label>Name</label><input type="text" class="speaker-name" placeholder="Full name" value="${data.name || ''}"/></div>
+      <div class="field"><label>Designation</label><input type="text" class="speaker-desig" placeholder="e.g. Senior Data Scientist" value="${data.desig || ''}"/></div>
+      <div class="field"><label>Organisation / Institution</label><input type="text" class="speaker-org" placeholder="Current employer or institution" value="${data.org || ''}"/></div>
+      <div class="field"><label>Topic / Title of Session</label><input type="text" class="speaker-topic" placeholder="Title of talk or presentation" value="${data.topic || ''}"/></div>
+    </div>`;
+  container.appendChild(card);
+  renumberSpeakers();
+}
+
+function removeSpeaker(button) {
+  const container = document.getElementById('speakersContainer');
+  if (!container || container.children.length <= 1) return;
+  button.closest('.speaker-card').remove();
+  renumberSpeakers();
+}
+
+function renumberSpeakers() {
+  document.querySelectorAll('#speakersContainer .speaker-card strong').forEach((label, i) => {
+    label.textContent = `Speaker ${i + 1}`;
+  });
+}
+
+function collectSpeakers() {
+  return Array.from(document.querySelectorAll('#speakersContainer .speaker-card')).map(card => ({
+    name: card.querySelector('.speaker-name')?.value.trim() || '',
+    desig: card.querySelector('.speaker-desig')?.value.trim() || '',
+    org: card.querySelector('.speaker-org')?.value.trim() || '',
+    topic: card.querySelector('.speaker-topic')?.value.trim() || ''
+  })).filter(s => s.name || s.desig || s.org || s.topic);
+}
+);
 }
 
 function buildSidebar() {
@@ -1777,9 +1564,6 @@ document.addEventListener('change', function(e) {
 function collectData() {
   const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
 
-  const gradAttrs = [];
-  document.querySelectorAll('#gradAttrs input:checked').forEach(cb => gradAttrs.push(cb.value));
-
   const docsData = DOCS.map((doc, i) => ({
     name: doc,
     enclosed: v(`doc_enc_${i}`),
@@ -1796,6 +1580,7 @@ function collectData() {
     academicYear: v('academicYear'),
     eventTitle: v('eventTitle'),
     eventType: v('eventType'),
+    eventTheme: v('eventTheme'),
     startDate: v('startDate'),
     endDate: v('endDate'),
     duration: v('duration'),
@@ -1811,36 +1596,23 @@ function collectData() {
     externalCount: v('externalCount'),
     targetAudience: v('targetAudience'),
     sponsors: v('sponsors'),
-    guestName: v('guestName'),
-    guestDesig: v('guestDesig'),
-    guestOrg: v('guestOrg'),
-    guestTopic: v('guestTopic'),
-    guestProfile: v('guestProfile'),
-    // Section B
-    naacAttributes: getSelectedAttrsForExport(),
+    speakers: collectSpeakers(),
     // Section D
     objectives: v('objectives'),
     detailedReport: v('detailedReport'),
-    keyTopics: v('keyTopics'),
     methodology: v('methodology'),
     // Section E
     learningOutcomes: v('learningOutcomes'),
-    poCoMapping: v('poCoMapping'),
-    gradAttrs: gradAttrs,
-    industryRelevance: v('industryRelevance'),
     sdgAlignment: v('sdgAlignment'),
     // Section F
     impactStudents: v('impactStudents'),
     impactFaculty: v('impactFaculty'),
     impactCommunity: v('impactCommunity'),
-    evidenceImpact: v('evidenceImpact'),
     mouDetails: v('mouDetails'),
     recommendations: v('recommendations'),
     // Section H
     feedbackTotal: v('feedbackTotal'),
     feedbackMode: v('feedbackMode'),
-    avgRating: v('avgRating'),
-    positivePct: v('positivePct'),
     feedbackObservations: v('feedbackObservations'),
     correctiveActions: v('correctiveActions'),
     // Docs
@@ -1849,12 +1621,6 @@ function collectData() {
     compiledByName: v('compiledByName'),
     compiledByDesig: v('compiledByDesig'),
     submissionDate: v('submissionDate'),
-    sigFaculty: v('sigFaculty'),
-    sigFacultyDate: v('sigFacultyDate'),
-    sigHOD: v('sigHOD'),
-    sigHODDate: v('sigHODDate'),
-    sigIQAC: v('sigIQAC'),
-    sigIQACRemark: v('sigIQACRemark'),
     sigPrincipal: v('sigPrincipal'),
   };
 }
@@ -1909,22 +1675,19 @@ Type: ${data.eventType || 'N/A'}
 Date: ${data.startDate || 'N/A'} to ${data.endDate || data.startDate || 'N/A'}
 Venue: ${data.venue || 'N/A'}
 Department: ${data.department || 'N/A'}
-Guest: ${data.guestName || ''} ${data.guestDesig ? ', ' + data.guestDesig : ''} ${data.guestOrg ? ', ' + data.guestOrg : ''}
-Guest Topic: ${data.guestTopic || 'N/A'}
+Speakers: ${data.speakers.length ? data.speakers.map(s => [s.name, s.desig, s.org, s.topic].filter(Boolean).join(' - ')).join('; ') : 'N/A'}
 Participants: ${data.totalParticipants || 'N/A'} (${data.studentsCount || 0} students, ${data.facultyCount || 0} faculty)
 Objectives: ${data.objectives || 'N/A'}
-Key Topics: ${data.keyTopics || 'N/A'}
+Methodology: ${data.methodology || 'N/A'}
+SDG Alignment: ${data.sdgAlignment || 'N/A'}
 User-provided report draft (expand and polish this): ${data.detailedReport || '(none provided)'}`;
 }
 
 // ─── BUILD WORD DOC (HTML-based .doc) ───────────────────────
 function buildWordDoc(data, aiNarrative) {
   const d = data;
-  const attrs = d.naacAttributes.length
-    ? d.naacAttributes.map(a => `<li style="margin-bottom:4px;">${a}</li>`).join('')
-    : '<li>—</li>';
-  const gradA = d.gradAttrs.length ? d.gradAttrs.join(', ') : '—';
   const reportBody = aiNarrative || d.detailedReport || '—';
+  const speakerRows = d.speakers.length ? d.speakers.map((s, i) => `<tr><td class="lbl">Speaker ${i + 1}</td><td class="val">${[s.name, s.desig, s.org].filter(Boolean).join(' | ') || '—'}${s.topic ? `<br/><strong>Topic:</strong> ${s.topic}` : ''}</td></tr>`).join('') : '<tr><td class="lbl">Speaker(s)</td><td class="val">—</td></tr>';
 
   const docsRows = d.docs.map((doc, i) => `
     <tr style="background:${i % 2 === 0 ? '#fff' : '#f8fafd'}">
@@ -1966,6 +1729,7 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Academic Year</td><td class="val">${d.academicYear || '—'}</td></tr>
   <tr><td class="lbl">Event Title</td><td class="val"><strong>${d.eventTitle || '—'}</strong></td></tr>
   <tr><td class="lbl">Event Type</td><td class="val">${d.eventType || '—'}</td></tr>
+  <tr><td class="lbl">Theme of the Event</td><td class="val">${d.eventTheme || '—'}</td></tr>
   <tr><td class="lbl">Start Date</td><td class="val">${d.startDate || '—'}</td></tr>
   <tr><td class="lbl">End Date</td><td class="val">${d.endDate || d.startDate || '—'}</td></tr>
   <tr><td class="lbl">Duration</td><td class="val">${d.duration || '—'}</td></tr>
@@ -1974,13 +1738,7 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Faculty Coordinator(s)</td><td class="val">${d.facultyCoord || '—'}</td></tr>
   <tr><td class="lbl">Student Coordinator(s)</td><td class="val">${d.studentCoord || '—'}</td></tr>
 </table>
-
-<h2>SECTION B — NAAC ATTRIBUTE &amp; CRITERIA MAPPING</h2>
-<table>
-  <tr><td class="lbl">NAAC Sub-Attributes Addressed</td><td class="val"><ul style='margin:0;padding-left:18px;'>${attrs}</ul></td></tr>
-</table>
-
-<h2>SECTION C — PARTICIPATION &amp; STAKEHOLDER DETAILS</h2>
+<h2>SECTION B — PARTICIPATION &amp; STAKEHOLDER DETAILS</h2>
 <table>
   <tr><td class="lbl">Students Participated</td><td class="val">${d.studentsCount || '—'}</td></tr>
   <tr><td class="lbl">Faculty Participated</td><td class="val">${d.facultyCount || '—'}</td></tr>
@@ -1991,43 +1749,32 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Collaborators / Sponsors</td><td class="val">${d.sponsors || '—'}</td></tr>
 </table>
 
-<h3>Guest / Resource Person Profile</h3>
-<table>
-  <tr><td class="lbl">Name</td><td class="val">${d.guestName || '—'}</td></tr>
-  <tr><td class="lbl">Designation</td><td class="val">${d.guestDesig || '—'}</td></tr>
-  <tr><td class="lbl">Organisation</td><td class="val">${d.guestOrg || '—'}</td></tr>
-  <tr><td class="lbl">Topic / Title</td><td class="val">${d.guestTopic || '—'}</td></tr>
-  <tr><td class="lbl">Brief Profile</td><td class="val">${d.guestProfile || '—'}</td></tr>
-</table>
+<h3>Speaker / Resource Person Profile(s)</h3>
+<table>${speakerRows}</table>
 
-<h2>SECTION D — EVENT DESCRIPTION &amp; CONTENT</h2>
+<h2>SECTION C — EVENT DESCRIPTION &amp; CONTENT</h2>
 <table>
   <tr><td class="lbl">Objectives</td><td class="val" style="white-space:pre-line;">${d.objectives || '—'}</td></tr>
   <tr><td class="lbl">Detailed Event Report</td><td class="val" style="white-space:pre-line;">${reportBody}</td></tr>
-  <tr><td class="lbl">Key Topics / Sessions</td><td class="val" style="white-space:pre-line;">${d.keyTopics || '—'}</td></tr>
   <tr><td class="lbl">Methodologies / Pedagogy</td><td class="val">${d.methodology || '—'}</td></tr>
-</table>
-
-<h2>SECTION E — LEARNING OUTCOMES &amp; OUTCOME MAPPING</h2>
-<table>
-  <tr><td class="lbl">Learning Outcomes</td><td class="val" style="white-space:pre-line;">${d.learningOutcomes || '—'}</td></tr>
-  <tr><td class="lbl">PO / CO Alignment</td><td class="val">${d.poCoMapping || '—'}</td></tr>
-  <tr><td class="lbl">Graduate Attributes</td><td class="val">${gradA}</td></tr>
-  <tr><td class="lbl">Industry / Real-World Relevance</td><td class="val">${d.industryRelevance || '—'}</td></tr>
   <tr><td class="lbl">SDG Alignment</td><td class="val">${d.sdgAlignment || '—'}</td></tr>
 </table>
 
-<h2>SECTION F — IMPACT ASSESSMENT</h2>
+<h2>SECTION D — LEARNING OUTCOMES &amp; OUTCOME MAPPING</h2>
+<table>
+  <tr><td class="lbl">Learning Outcomes</td><td class="val" style="white-space:pre-line;">${d.learningOutcomes || '—'}</td></tr>
+</table>
+
+<h2>SECTION E — IMPACT ASSESSMENT</h2>
 <table>
   <tr><td class="lbl">Impact on Students</td><td class="val">${d.impactStudents || '—'}</td></tr>
   <tr><td class="lbl">Impact on Faculty / Institution</td><td class="val">${d.impactFaculty || '—'}</td></tr>
   <tr><td class="lbl">Community / Societal Impact</td><td class="val">${d.impactCommunity || '—'}</td></tr>
-  <tr><td class="lbl">Evidence of Impact</td><td class="val">${d.evidenceImpact || '—'}</td></tr>
   <tr><td class="lbl">MoU / Collaboration</td><td class="val">${d.mouDetails || '—'}</td></tr>
   <tr><td class="lbl">Recommendations</td><td class="val">${d.recommendations || '—'}</td></tr>
 </table>
 
-<h2>SECTION G — SUPPORTING DOCUMENTS CHECKLIST</h2>
+<h2>SECTION F — SUPPORTING DOCUMENTS CHECKLIST</h2>
 <table>
   <thead><tr style="background:#2E75B6;color:#fff;">
     <th style="padding:8px 10px;border:1px solid #C8D9EC;width:40px;">#</th>
@@ -2038,24 +1785,19 @@ function buildWordDoc(data, aiNarrative) {
   <tbody>${docsRows}</tbody>
 </table>
 
-<h2>SECTION H — FEEDBACK SUMMARY &amp; ANALYSIS</h2>
+<h2>SECTION G — FEEDBACK SUMMARY &amp; ANALYSIS</h2>
 <table>
   <tr><td class="lbl">Feedback Forms Collected</td><td class="val">${d.feedbackTotal || '—'}</td></tr>
   <tr><td class="lbl">Mode of Feedback</td><td class="val">${d.feedbackMode || '—'}</td></tr>
-  <tr><td class="lbl">Average Rating</td><td class="val">${d.avgRating || '—'}</td></tr>
-  <tr><td class="lbl">% Positive Ratings</td><td class="val">${d.positivePct || '—'}</td></tr>
   <tr><td class="lbl">Key Observations</td><td class="val" style="white-space:pre-line;">${d.feedbackObservations || '—'}</td></tr>
   <tr><td class="lbl">Corrective Actions</td><td class="val">${d.correctiveActions || '—'}</td></tr>
 </table>
 
-<h2>SECTION I — APPROVAL &amp; VERIFICATION</h2>
+<h2>SECTION H — APPROVAL &amp; VERIFICATION</h2>
 <table>
   <tr><td class="lbl">Report Compiled By</td><td class="val">${d.compiledByName || '—'}</td></tr>
   <tr><td class="lbl">Designation</td><td class="val">${d.compiledByDesig || '—'}</td></tr>
   <tr><td class="lbl">Date of Submission</td><td class="val">${d.submissionDate || '—'}</td></tr>
-  <tr><td class="lbl">Faculty In-Charge</td><td class="val">${d.sigFaculty || '—'} ${d.sigFacultyDate ? '| Date: ' + d.sigFacultyDate : ''}</td></tr>
-  <tr><td class="lbl">Head of Department</td><td class="val">${d.sigHOD || '—'} ${d.sigHODDate ? '| Date: ' + d.sigHODDate : ''}</td></tr>
-  <tr><td class="lbl">IQAC Coordinator</td><td class="val">${d.sigIQAC || '—'} ${d.sigIQACRemark ? '| Remarks: ' + d.sigIQACRemark : ''}</td></tr>
   <tr><td class="lbl">Principal / Dean / Director</td><td class="val">${d.sigPrincipal || '—'}</td></tr>
 </table>
 
@@ -2085,7 +1827,7 @@ function closeOverlay() { hideOverlay(); }
 
 // ─── SUCCESS ────────────────────────────────────────────────
 function showSuccess() {
-  for (let i = 1; i <= 9; i++) document.getElementById('step' + i).classList.remove('active');
+  for (let i = 1; i <= STEPS.length; i++) document.getElementById('step' + i).classList.remove('active');
   document.getElementById('progressRow').style.display = 'none';
   document.getElementById('successScreen').classList.add('show');
 
