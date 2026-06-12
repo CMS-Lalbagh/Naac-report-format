@@ -617,30 +617,165 @@
 </style>
 </head>
 <body>
-<!-- ═══════════════════════════════════════════════
-         SECTION 4: EVENT DESCRIPTION
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="topbar-badge">IQAC</span>
+        <span class="topbar-title">Activity Report Tool</span>
+      </div>
+      <div class="topbar-sub">NAAC Activity Report Format</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-top btn-reset" onclick="confirmReset()">Reset</button>
+    <button class="btn-top btn-export-word" id="quickExportBtn" onclick="quickExport()" disabled>Export Word</button>
+  </div>
+</header>
+
+<!-- MOBILE STEP STRIP -->
+<div class="mobile-step-strip" id="mobileStepStrip"></div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-label">Form Sections</div>
+  </nav>
+
+  <main class="main" id="mainArea">
+    <div class="progress-row" id="progressRow">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:13%"></div></div>
+      <div class="progress-text" id="progressText">Section 1 of 8</div>
+    </div>
+
+    <div class="step-section active" id="step1">
       <div class="section-header">
-        <span class="section-tag">Section D</span>
-        <div class="section-title">Event Description & Content</div>
-        <div class="section-subtitle">Detailed narrative required for SSR qualitative metrics — minimum 200 words for the report</div>
+        <span class="section-tag">Section A</span>
+        <div class="section-title">Institutional & Event Identification</div>
+        <div class="section-subtitle">Basic details for IQAC records and verification</div>
       </div>
 
       <div class="card">
+        <div class="card-title">Institution Details</div>
+        <div class="card-body col2">
+          <div class="field full"><label>Institution Name <span class="req">*</span></label><input type="text" id="institutionName" placeholder="e.g. Jain University, Bengaluru"/></div>
+          <div class="field"><label>Campus / School / Faculty</label><input type="text" id="campus" placeholder="e.g. School of Engineering"/></div>
+          <div class="field"><label>Organising Department / Club / Cell <span class="req">*</span></label><input type="text" id="department" placeholder="e.g. Dept. of Computer Science / NSS Cell"/></div>
+          <div class="field"><label>Academic Year <span class="req">*</span></label><input type="text" id="academicYear" placeholder="e.g. 2025-26"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Event Details</div>
+        <div class="card-body col2">
+          <div class="field full"><label>Event Title <span class="req">*</span></label><input type="text" id="eventTitle" placeholder="Full name of the event"/></div>
+          <div class="field full"><label>Theme of the Event</label><input type="text" id="eventTheme" placeholder="e.g. Innovation for Sustainable Futures"/></div>
+          <div class="field full">
+            <label>Event Type <span class="req">*</span></label>
+            <select id="eventType">
+              <option value="">- Select -</option>
+              <option>Guest Lecture</option>
+              <option>Workshop</option>
+              <option>Seminar / Webinar</option>
+              <option>Conference</option>
+              <option>Student Training/Orientation</option>
+              <option>Internship&Placement</option>
+              <option>Counselling</option>
+              <option>Faculty Development Programme (FDP)</option>
+              <option>Cultural Festival</option>
+              <option>Sports Event</option>
+              <option>Community Outreach / UBA</option>
+              <option>Industry Visit</option>
+              <option>Awareness Campaign</option>
+              <option>Technical Fest / Exhibition</option>
+              <option>Alumni Interaction</option>
+              <option>Skill Development Programme</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="startDate"/></div>
+          <div class="field"><label>End Date</label><input type="date" id="endDate"/></div>
+          <div class="field"><label>Duration <span class="hint">Hours / Days</span></label><input type="text" id="duration" placeholder="e.g. 3 hours / 2 days"/></div>
+          <div class="field"><label>Mode</label><select id="mode"><option value="">- Select -</option><option>Offline</option><option>Online</option><option>Hybrid</option></select></div>
+          <div class="field full"><label>Venue</label><input type="text" id="venue" placeholder="e.g. Seminar Hall, Block B / Zoom Meeting"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Coordinators</div>
+        <div class="card-body col2">
+          <div class="field"><label>Faculty Coordinator(s)</label><input type="text" id="facultyCoord" placeholder="Name(s) and designation"/></div>
+          <div class="field"><label>Student Coordinator(s)</label><input type="text" id="studentCoord" placeholder="Name(s) and roll number"/></div>
+        </div>
+      </div>
+      <div class="nav-bar"><div></div><button class="btn-nav btn-next" onclick="goTo(2)">Participants & Speakers &gt;</button></div>
+    </div>
+
+    <div class="step-section" id="step2">
+      <div class="section-header">
+        <span class="section-tag">Section B</span>
+        <div class="section-title">Participation & Speaker Profile</div>
+        <div class="section-subtitle">Participant and resource person details for event records</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Participant Count</div>
+        <div class="card-body col3">
+          <div class="field"><label>Students</label><input type="number" id="studentsCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Faculty</label><input type="number" id="facultyCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Non-Teaching Staff</label><input type="number" id="ntStaffCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Participants from Other Institutions</label><input type="text" id="externalCount" placeholder="Count and institution names"/></div>
+          <div class="field"><label>Target Audience</label>
+            <select id="targetAudience">
+              <option value="">- Select -</option>
+              <option>Intra-Departmental</option>
+              <option>Intra-University</option>
+              <option>Inter-University</option>
+              <option>Industry Professionals</option>
+              <option>Community / General Public</option>
+            </select>
+          </div>
+          <div class="field"><label>Collaborators / Sponsors</label><input type="text" id="sponsors" placeholder="Name and role (if any)"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Speaker / Resource Person Profiles</div>
+        <div class="card-body">
+          <div id="speakersContainer"></div>
+          <button type="button" class="btn-nav btn-next" onclick="addSpeaker()" style="justify-content:center;width:max-content;">+ Add Speaker</button>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="btn-nav btn-prev" onclick="goTo(1)">&lt; Institution Details</button>
+        <button class="btn-nav btn-next" onclick="goTo(3)">Event Description &gt;</button>
+      </div>
+    </div>
+
+
+    <!-- SECTION 3: EVENT DESCRIPTION -->
+    <div class="step-section" id="step3">
+      <div class="section-header">
+        <span class="section-tag">Section C</span>
+        <div class="section-title">Event Description & Content</div>
+        <div class="section-subtitle">Detailed narrative required for the report</div>
+      </div>
+      <div class="card">
         <div class="card-body">
           <div class="field">
-            <label>Objectives of the Event <span class="req">*</span><span class="hint">State 3–5 clear objectives</span></label>
-            <textarea id="objectives" rows="4" placeholder="1. To expose students to current industry practices...&#10;2. To foster interaction between academia and professionals...&#10;3. To build communication and technical skills..."></textarea>
+            <label>Objectives of the Event <span class="req">*</span><span class="hint">State 3-5 clear objectives</span></label>
+            <textarea id="objectives" rows="4" placeholder="1. To expose students to current industry practices...&#10;2. To foster interaction between academia and professionals..."></textarea>
           </div>
           <div class="field">
-            <label>Detailed Event Report <span class="req">*</span><span class="hint">Minimum 200 words — describe preparation, proceedings, key topics, and chronological flow</span></label>
-            <textarea id="detailedReport" rows="9" placeholder="The event commenced at 10:00 AM with an inaugural address by...&#10;The resource person, Dr. [Name], delivered an insightful session on...&#10;Participants actively engaged in..."></textarea>
+            <label>Detailed Event Report <span class="req">*</span><span class="hint">Describe preparation, proceedings, and chronological flow</span></label>
+            <textarea id="detailedReport" rows="9" placeholder="The event commenced at 10:00 AM with an inaugural address by..."></textarea>
             <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="wordCount">Words: 0</div>
           </div>
           <div class="field">
             <label>Methodologies / Pedagogy Used</label>
-            <textarea id="methodology" rows="3" placeholder="e.g. Interactive lecture, hands-on workshop, panel discussion, case study analysis, role-play, live demonstration..."></textarea>
+            <textarea id="methodology" rows="3" placeholder="e.g. Interactive lecture, hands-on workshop, panel discussion, case study analysis, live demonstration..."></textarea>
           </div>
           <div class="field">
             <label>SDG Alignment <span class="hint">UN Sustainable Development Goals (if applicable)</span></label>
@@ -648,102 +783,85 @@
           </div>
         </div>
       </div>
-
       <div class="nav-bar">
         <button class="btn-nav btn-prev" onclick="goTo(2)">&lt; Participation</button>
-        <button class="btn-nav btn-next" onclick="goTo(3)">Learning Outcomes →</button>
+        <button class="btn-nav btn-next" onclick="goTo(4)">Learning Outcomes &gt;</button>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
-         SECTION 5: LEARNING OUTCOMES
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
+    <!-- SECTION 4: LEARNING OUTCOMES -->
+    <div class="step-section" id="step4">
       <div class="section-header">
-        <span class="section-tag">Section E</span>
+        <span class="section-tag">Section D</span>
         <div class="section-title">Learning Outcomes</div>
         <div class="section-subtitle">Record the competencies gained through the event</div>
       </div>
-
       <div class="card">
         <div class="card-body">
           <div class="field">
             <label>Learning Outcomes / Competencies Gained <span class="hint">Use Bloom's Taxonomy levels where possible</span></label>
-            <textarea id="learningOutcomes" rows="4" placeholder="1. Students will be able to APPLY ML algorithms to real datasets (Apply level)&#10;2. Students will ANALYSE industry-grade code and tools (Analyse level)&#10;3. Participants will EVALUATE ethical considerations in AI (Evaluate level)"></textarea>
+            <textarea id="learningOutcomes" rows="4" placeholder="1. Students will be able to APPLY...&#10;2. Participants will ANALYSE...&#10;3. Participants will EVALUATE..."></textarea>
           </div>
         </div>
       </div>
-
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(3)">← Event Description</button>
-        <button class="btn-nav btn-next" onclick="goTo(3)">Impact Assessment →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(3)">&lt; Event Description</button>
+        <button class="btn-nav btn-next" onclick="goTo(5)">Impact Assessment &gt;</button>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
-         SECTION 6: IMPACT
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
+    <!-- SECTION 5: IMPACT -->
+    <div class="step-section" id="step5">
       <div class="section-header">
-        <span class="section-tag">Section F</span>
+        <span class="section-tag">Section E</span>
         <div class="section-title">Impact Assessment & Quality Indicators</div>
         <div class="section-subtitle">Capture measurable and qualitative impact for institutional records</div>
       </div>
-
       <div class="card">
         <div class="card-body">
           <div class="field"><label>Impact on Students / Participants</label><textarea id="impactStudents" rows="3" placeholder="Describe observable changes: skills gained, motivation, awareness, behaviour shift..."></textarea></div>
           <div class="field"><label>Impact on Faculty / Institution</label><textarea id="impactFaculty" rows="3" placeholder="Curriculum enrichment, research collaboration, new industry linkage, MoU initiated..."></textarea></div>
-          <div class="field"><label>Community / Societal Impact <span class="hint">Relevant for Criterion 3 / Attr-6 outreach activities</span></label><textarea id="impactCommunity" rows="3" placeholder="If applicable — clean village drive, health awareness, women empowerment, etc."></textarea></div>
+          <div class="field"><label>Community / Societal Impact</label><textarea id="impactCommunity" rows="3" placeholder="If applicable: outreach, awareness, empowerment, public benefit..."></textarea></div>
           <div class="field"><label>MoU / Collaboration Established</label><input type="text" id="mouDetails" placeholder="Organisation name and nature of collaboration (if any)"/></div>
-          <div class="field"><label>Recommendations / Follow-Up Actions</label><textarea id="recommendations" rows="3" placeholder="What should be done next? E.g. organise a follow-up hands-on lab, invite speaker again for advanced session..."></textarea></div>
+          <div class="field"><label>Recommendations / Follow-Up Actions</label><textarea id="recommendations" rows="3" placeholder="What should be done next?"></textarea></div>
         </div>
       </div>
-
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(3)">← Learning Outcomes</button>
-        <button class="btn-nav btn-next" onclick="goTo(3)">Feedback Summary →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(4)">&lt; Learning Outcomes</button>
+        <button class="btn-nav btn-next" onclick="goTo(6)">Feedback Summary &gt;</button>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
-         SECTION 7: FEEDBACK
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
+    <!-- SECTION 6: FEEDBACK -->
+    <div class="step-section" id="step6">
       <div class="section-header">
-        <span class="section-tag">Section H</span>
+        <span class="section-tag">Section F</span>
         <div class="section-title">Feedback Summary & Analysis</div>
         <div class="section-subtitle">Feedback observations and actions taken</div>
       </div>
-
       <div class="card">
         <div class="card-body col2">
           <div class="field"><label>Total Feedback Forms Collected</label><input type="number" id="feedbackTotal" placeholder="0" min="0"/></div>
           <div class="field"><label>Mode of Feedback</label>
-            <select id="feedbackMode"><option value="">— Select —</option><option>Paper Forms</option><option>Google Form</option><option>Institutional MIS Portal</option><option>Mixed</option></select>
+            <select id="feedbackMode"><option value="">- Select -</option><option>Paper Forms</option><option>Google Form</option><option>Institutional MIS Portal</option><option>Mixed</option></select>
           </div>
-          <div class="field full"><label>Key Observations from Feedback</label><textarea id="feedbackObservations" rows="3" placeholder="Positive: Participants appreciated the practical demonstrations and expert insights.&#10;Suggestions: More time for Q&A, additional hands-on exercises requested."></textarea></div>
-          <div class="field full"><label>Corrective Actions Planned</label><textarea id="correctiveActions" rows="3" placeholder="Based on feedback, next edition will include a dedicated 30-minute Q&A session and printed reference materials..."></textarea></div>
+          <div class="field full"><label>Key Observations from Feedback</label><textarea id="feedbackObservations" rows="3" placeholder="Positive observations and suggestions received..."></textarea></div>
+          <div class="field full"><label>Corrective Actions Planned</label><textarea id="correctiveActions" rows="3" placeholder="Actions planned based on feedback..."></textarea></div>
         </div>
       </div>
-
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(3)">← Impact</button>
-        <button class="btn-nav btn-next" onclick="goTo(3)">Documents Checklist →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(5)">&lt; Impact</button>
+        <button class="btn-nav btn-next" onclick="goTo(7)">Documents Checklist &gt;</button>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
-         SECTION 8: DOCUMENTS CHECKLIST
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
+    <!-- SECTION 7: DOCUMENTS CHECKLIST -->
+    <div class="step-section" id="step7">
       <div class="section-header">
         <span class="section-tag">Section G</span>
         <div class="section-title">Supporting Documents & Evidence Checklist</div>
-        <div class="section-subtitle">Upload files directly from your computer — they save to your Google Drive and the link auto-fills here</div>
+        <div class="section-subtitle">Upload files directly from your computer; Google Drive links auto-fill here</div>
       </div>
-
-      <!-- Google Sign-in Bar -->
       <div class="google-signin-bar" id="driveSigninBar">
         <div class="signin-info">
           <div class="signin-avatar" id="driveAvatar">G</div>
@@ -752,12 +870,8 @@
             <div class="signin-sub" id="driveUserEmail">To upload files to your Drive and auto-fill links</div>
           </div>
         </div>
-        <button class="btn-google-sign" id="driveSignBtn" onclick="handleDriveAuth()">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Sign in with Google
-        </button>
+        <button class="btn-google-sign" id="driveSignBtn" onclick="handleDriveAuth()">Sign in with Google</button>
       </div>
-
       <div class="card">
         <div class="card-body" style="padding:0;">
           <table class="checklist-table" id="docsTable">
@@ -771,36 +885,42 @@
           </table>
         </div>
       </div>
-
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(3)">← Feedback</button>
-        <button class="btn-nav btn-next" onclick="goTo(3)">Approval & Sign-off →</button>
+        <button class="btn-nav btn-prev" onclick="goTo(6)">&lt; Feedback</button>
+        <button class="btn-nav btn-next" onclick="goTo(8)">Approval & Sign-off &gt;</button>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
-         SECTION 9: APPROVAL
-    ════════════════════════════════════════════════ -->
-    <div class="step-section" id="step3">
+    <!-- SECTION 8: APPROVAL -->
+    <div class="step-section" id="step8">
       <div class="section-header">
-        <span class="section-tag">Section I</span>
+        <span class="section-tag">Section H</span>
         <div class="section-title">Approval, Verification & Signatures</div>
         <div class="section-subtitle">Final compilation and approval details</div>
       </div>
-          <div class="sig-row" style="margin-top:14px;">
-            <div class="sig-block" style="grid-column:1/4;">
-              <label>Principal / Dean / Director (Final Approval)</label>
-              <input type="text" id="sigPrincipal" placeholder="Name and designation"/>
-            </div>
+      <div class="card">
+        <div class="card-title">Compiled By</div>
+        <div class="card-body col2">
+          <div class="field"><label>Name</label><input type="text" id="compiledByName" placeholder="Full name"/></div>
+          <div class="field"><label>Designation</label><input type="text" id="compiledByDesig" placeholder="e.g. Assistant Professor"/></div>
+          <div class="field"><label>Date of Submission</label><input type="date" id="submissionDate"/></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Principal / Dean / Director Approval</div>
+        <div class="card-body">
+          <div class="sig-block">
+            <label>Principal / Dean / Director Approval</label>
+            <input type="text" id="sigPrincipal" placeholder="Name and designation"/>
           </div>
         </div>
       </div>
-
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(3)">← Documents</button>
-        <button class="btn-nav btn-submit" id="submitBtn" onclick="generateReport()">⬇ Generate & Download Report</button>
+        <button class="btn-nav btn-prev" onclick="goTo(7)">&lt; Documents</button>
+        <button class="btn-nav btn-submit" id="submitBtn" onclick="generateReport()">Generate & Download Report</button>
       </div>
     </div>
+
 
     <!-- SUCCESS SCREEN -->
     <div class="success-screen" id="successScreen">
@@ -891,7 +1011,8 @@ function buildMobileStrip() {
 
 function scrollMobileStripTo(step) {
   const pill = document.getElementById('mobilePill' + step);
-  if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }
+  if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
 
 function addSpeaker(data = {}) {
   const container = document.getElementById('speakersContainer');
@@ -935,8 +1056,6 @@ function collectSpeakers() {
     org: card.querySelector('.speaker-org')?.value.trim() || '',
     topic: card.querySelector('.speaker-topic')?.value.trim() || ''
   })).filter(s => s.name || s.desig || s.org || s.topic);
-}
-);
 }
 
 function buildSidebar() {
@@ -1588,7 +1707,7 @@ function collectData() {
     venue: v('venue'),
     facultyCoord: v('facultyCoord'),
     studentCoord: v('studentCoord'),
-    // Section C
+    // Section B
     studentsCount: v('studentsCount'),
     facultyCount: v('facultyCount'),
     ntStaffCount: v('ntStaffCount'),
@@ -1597,27 +1716,27 @@ function collectData() {
     targetAudience: v('targetAudience'),
     sponsors: v('sponsors'),
     speakers: collectSpeakers(),
-    // Section D
+    // Section C
     objectives: v('objectives'),
     detailedReport: v('detailedReport'),
     methodology: v('methodology'),
-    // Section E
+    // Section D
     learningOutcomes: v('learningOutcomes'),
     sdgAlignment: v('sdgAlignment'),
-    // Section F
+    // Section E
     impactStudents: v('impactStudents'),
     impactFaculty: v('impactFaculty'),
     impactCommunity: v('impactCommunity'),
     mouDetails: v('mouDetails'),
     recommendations: v('recommendations'),
-    // Section H
+    // Section F
     feedbackTotal: v('feedbackTotal'),
     feedbackMode: v('feedbackMode'),
     feedbackObservations: v('feedbackObservations'),
     correctiveActions: v('correctiveActions'),
     // Docs
     docs: docsData,
-    // Section I
+    // Section H
     compiledByName: v('compiledByName'),
     compiledByDesig: v('compiledByDesig'),
     submissionDate: v('submissionDate'),
@@ -1760,7 +1879,7 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">SDG Alignment</td><td class="val">${d.sdgAlignment || '—'}</td></tr>
 </table>
 
-<h2>SECTION D — LEARNING OUTCOMES &amp; OUTCOME MAPPING</h2>
+<h2>SECTION D — LEARNING OUTCOMES</h2>
 <table>
   <tr><td class="lbl">Learning Outcomes</td><td class="val" style="white-space:pre-line;">${d.learningOutcomes || '—'}</td></tr>
 </table>
@@ -1804,7 +1923,7 @@ function buildWordDoc(data, aiNarrative) {
 <div class="footer-note">
   <strong>IQAC Note:</strong> This report is aligned to NAAC's Binary Accreditation Framework (10 Attributes). 
   All supporting documents must be uploaded to the institutional repository / MIS portal for DVV verification. 
-  Geo-tagged photographs are mandatory. Reports without feedback analysis and outcome mapping may be returned for revision.
+  Geo-tagged photographs are mandatory. Reports should include feedback analysis and required supporting documents.
 </div>
 
 </body></html>`;
