@@ -4,8 +4,55 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>NAAC Activity Report Tool</title>
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client"></script>
+<script>
+  // Load gapi first, then gsi
+  function loadGoogleAPIs() {
+    // Load gapi
+    const gapiScript = document.createElement('script');
+    gapiScript.src = 'https://apis.google.com/js/api.js';
+    gapiScript.onload = () => {
+      gapi.load('picker:client', () => {
+        gapi.client.init({
+          apiKey: 'AIzaSyCFSrPZ1l_531X5YQ7_nosyVbJMjbUJVdA',
+          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+        }).then(() => {
+          window._gapiReady = true;
+          tryFinishDriveInit();
+        });
+      });
+    };
+    document.head.appendChild(gapiScript);
+
+    // Load gsi (Google Identity Services)
+    const gsiScript = document.createElement('script');
+    gsiScript.src = 'https://accounts.google.com/gsi/client';
+    gsiScript.onload = () => {
+      window._gsiReady = true;
+      tryFinishDriveInit();
+    };
+    document.head.appendChild(gsiScript);
+  }
+
+  function tryFinishDriveInit() {
+    if (window._gapiReady && window._gsiReady) {
+      // Both loaded — init token client
+      window._driveTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: '714478709483-qoe3n8lmf277al9mme6r3v5ah52qr96m.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+        callback: async (resp) => {
+          if (resp.error) { console.error(resp); return; }
+          window._driveAccessToken = resp.access_token;
+          await window._fetchDriveUser();
+          window._updateSigninBar(true);
+        }
+      });
+      window._driveInitDone = true;
+      console.log('Google Drive APIs ready');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadGoogleAPIs);
+</script>
 <style>
   :root {
     --navy: #1F3864;
@@ -1132,69 +1179,55 @@ function buildSidebar() {
 }
 
 // ─── GOOGLE DRIVE CONFIG ────────────────────────────────────
-const GOOGLE_API_KEY    = 'AIzaSyCFSrPZ1l_531X5YQ7_nosyVbJMjbUJVdA';
-const GOOGLE_CLIENT_ID  = '714478709483-qoe3n8lmf277al9mme6r3v5ah52qr96m.apps.googleusercontent.com';
-const DRIVE_SCOPE       = 'https://www.googleapis.com/auth/drive.file';
-const PICKER_APP_ID     = '714478709483';
+const PICKER_APP_ID = '714478709483';
 
-let driveTokenClient  = null;
-let driveAccessToken  = null;
-let driveUserInfo     = null;
-let drivePickerInited = false;
-let driveGapiInited   = false;
+// These live on window._ so the inline script block can share state
+window._driveAccessToken = null;
+window._driveUserInfo    = null;
+window._driveInitDone    = false;
+window._gapiReady        = false;
+window._gsiReady         = false;
 
-function initGoogleDrive() {
-  gapi.load('picker', () => { drivePickerInited = true; });
-  gapi.load('client', async () => {
-    await gapi.client.init({ apiKey: GOOGLE_API_KEY, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] });
-    driveGapiInited = true;
-  });
-  driveTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: DRIVE_SCOPE + ' https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-    callback: async (resp) => {
-      if (resp.error) { console.error(resp); return; }
-      driveAccessToken = resp.access_token;
-      await fetchDriveUserInfo();
-      updateSigninBar(true);
-    }
-  });
-}
+window._fetchDriveUser = async function() {
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + window._driveAccessToken }
+    });
+    window._driveUserInfo = await r.json();
+  } catch(e) {}
+};
+
+window._updateSigninBar = updateSigninBar; // forward ref — defined below
 
 async function handleDriveAuth() {
-  if (driveAccessToken) {
-    // Sign out
-    google.accounts.oauth2.revoke(driveAccessToken, () => {});
-    driveAccessToken = null;
-    driveUserInfo = null;
+  if (window._driveAccessToken) {
+    google.accounts.oauth2.revoke(window._driveAccessToken, () => {});
+    window._driveAccessToken = null;
+    window._driveUserInfo    = null;
     updateSigninBar(false);
   } else {
-    driveTokenClient.requestAccessToken({ prompt: 'consent' });
+    if (!window._driveInitDone) {
+      alert('Google APIs are still loading. Please wait a moment and try again.');
+      return;
+    }
+    window._driveTokenClient.requestAccessToken({ prompt: '' });
   }
 }
 
-async function fetchDriveUserInfo() {
-  try {
-    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: 'Bearer ' + driveAccessToken }
-    });
-    driveUserInfo = await r.json();
-  } catch(e) {}
-}
-
 function updateSigninBar(signedIn) {
+  window._updateSigninBar = updateSigninBar;
   const bar    = document.getElementById('driveSigninBar');
   const avatar = document.getElementById('driveAvatar');
   const name   = document.getElementById('driveUserName');
   const email  = document.getElementById('driveUserEmail');
   const btn    = document.getElementById('driveSignBtn');
-  if (signedIn && driveUserInfo) {
+  if (signedIn && window._driveUserInfo) {
     bar.classList.add('signed-in');
-    const initials = ((driveUserInfo.given_name||'?')[0] + (driveUserInfo.family_name||'?')[0]).toUpperCase();
+    const initials = ((window._driveUserInfo.given_name||'?')[0] + (window._driveUserInfo.family_name||'?')[0]).toUpperCase();
     avatar.textContent = initials;
     avatar.style.background = 'var(--success)';
-    name.textContent  = driveUserInfo.name || 'Signed in';
-    email.textContent = driveUserInfo.email || '';
+    name.textContent  = window._driveUserInfo.name || 'Signed in';
+    email.textContent = window._driveUserInfo.email || '';
     btn.innerHTML = '✕ Sign out';
     btn.classList.add('signout');
     // Enable all upload buttons
@@ -1212,12 +1245,12 @@ function updateSigninBar(signedIn) {
 }
 
 function openDrivePicker(docIndex) {
-  if (!driveAccessToken) {
+  if (!window._driveAccessToken) {
     alert('Please sign in with Google first to upload files.');
     return;
   }
-  if (!drivePickerInited || !driveGapiInited) {
-    alert('Google Drive is still loading. Please try again in a moment.');
+  if (!window._driveInitDone) {
+    alert('Google Drive is still loading. Please wait a few seconds and try again.');
     return;
   }
 
@@ -1230,7 +1263,7 @@ function openDrivePicker(docIndex) {
 
   const picker = new google.picker.PickerBuilder()
     .setAppId(PICKER_APP_ID)
-    .setOAuthToken(driveAccessToken)
+    .setOAuthToken(window._driveAccessToken)
     .setDeveloperKey(GOOGLE_API_KEY)
     .setCallback((data) => pickerCallback(data, docIndex))
     .setTitle('Upload or select file for: ' + DOCS[docIndex])
@@ -1254,7 +1287,7 @@ async function pickerCallback(data, docIndex) {
     await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + driveAccessToken,
+        'Authorization': 'Bearer ' + window._driveAccessToken,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ role: 'reader', type: 'anyone' })
@@ -2095,13 +2128,6 @@ function confirmReset() {
 
 // ─── START ──────────────────────────────────────────────────
 init();
-
-// Load Google APIs
-window.onload = () => {
-  if (typeof gapi !== 'undefined') {
-    gapi.load('picker:client', initGoogleDrive);
-  }
-};
 </script>
 </body>
 </html>
