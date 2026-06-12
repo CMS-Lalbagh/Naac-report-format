@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>NAAC Activity Report Tool</title>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
   :root {
     --navy: #1F3864;
@@ -514,6 +516,68 @@
     .step-desc { display: none; }
     .sig-row { grid-template-columns: 1fr 1fr; }
   }
+
+  /* ── GOOGLE DRIVE UPLOAD ── */
+  .upload-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;
+    cursor: pointer; border: none; transition: all .18s;
+    background: #fff; color: var(--blue);
+    border: 1.5px solid var(--blue); white-space: nowrap;
+  }
+  .upload-btn:hover { background: var(--steel); }
+  .upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .upload-btn.uploading { background: var(--steel); color: var(--muted); border-color: var(--border); }
+  .upload-btn .drive-icon { width: 14px; height: 14px; }
+
+  .upload-status {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 5px; font-size: 11px;
+  }
+  .upload-status.success { color: var(--success); }
+  .upload-status.error   { color: var(--danger); }
+  .upload-status.pending { color: var(--muted); }
+
+  .drive-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--blue); text-decoration: none; font-weight: 600;
+    padding: 3px 8px; background: rgba(46,117,182,0.08); border-radius: 4px;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .drive-link:hover { background: rgba(46,117,182,0.15); }
+
+  .google-signin-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 16px; background: var(--steel); border-radius: 8px;
+    border: 1.5px solid var(--border); margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+  }
+  .google-signin-bar.signed-in { background: #e8f6ee; border-color: #a8d8b8; }
+  .signin-info { display: flex; align-items: center; gap: 10px; }
+  .signin-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--blue); color: #fff; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .signin-text { font-size: 12px; }
+  .signin-name { font-weight: 700; color: var(--navy); }
+  .signin-sub  { color: var(--muted); font-size: 11px; }
+  .btn-google-sign {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 7px; font-size: 12px; font-weight: 700;
+    cursor: pointer; border: 1.5px solid var(--border); background: #fff;
+    transition: all .15s; color: var(--navy);
+  }
+  .btn-google-sign:hover { background: var(--steel); border-color: var(--blue); }
+  .btn-google-sign.signout { background: #fff5f5; border-color: #f5c6c6; color: var(--danger); }
+
+  .docs-upload-cell { display: flex; flex-direction: column; gap: 5px; }
+
+  @media (max-width: 768px) {
+    .upload-btn { font-size: 10px; padding: 5px 8px; }
+    .drive-link  { max-width: 120px; }
+    .google-signin-bar { flex-direction: column; align-items: flex-start; }
+  }
+
 </style>
 </head>
 <body>
@@ -865,13 +929,33 @@
       <div class="section-header">
         <span class="section-tag">Section G</span>
         <div class="section-title">Supporting Documents & Evidence Checklist</div>
-        <div class="section-subtitle">All documents must be uploaded to the institutional repository / MIS portal for DVV verification</div>
+        <div class="section-subtitle">Upload files directly from your computer — they save to your Google Drive and the link auto-fills here</div>
+      </div>
+
+      <!-- Google Sign-in Bar -->
+      <div class="google-signin-bar" id="driveSigninBar">
+        <div class="signin-info">
+          <div class="signin-avatar" id="driveAvatar">G</div>
+          <div class="signin-text">
+            <div class="signin-name" id="driveUserName">Sign in with Google</div>
+            <div class="signin-sub" id="driveUserEmail">To upload files to your Drive and auto-fill links</div>
+          </div>
+        </div>
+        <button class="btn-google-sign" id="driveSignBtn" onclick="handleDriveAuth()">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Sign in with Google
+        </button>
       </div>
 
       <div class="card">
-        <div class="card-body">
+        <div class="card-body" style="padding:0;">
           <table class="checklist-table" id="docsTable">
-            <thead><tr><th>#</th><th>Document / Evidence</th><th>Enclosed?</th><th>Link / Reference No.</th></tr></thead>
+            <thead><tr>
+              <th style="width:32px;">#</th>
+              <th>Document / Evidence</th>
+              <th style="width:90px;">Enclosed?</th>
+              <th>Upload / Link</th>
+            </tr></thead>
             <tbody id="docsBody"></tbody>
           </table>
         </div>
@@ -1047,22 +1131,203 @@ function buildSidebar() {
   });
 }
 
+// ─── GOOGLE DRIVE CONFIG ────────────────────────────────────
+const GOOGLE_API_KEY    = 'AIzaSyCFSrPZ1l_531X5YQ7_nosyVbJMjbUJVdA';
+const GOOGLE_CLIENT_ID  = '714478709483-qoe3n8lmf277al9mme6r3v5ah52qr96m.apps.googleusercontent.com';
+const DRIVE_SCOPE       = 'https://www.googleapis.com/auth/drive.file';
+const PICKER_APP_ID     = '714478709483';
+
+let driveTokenClient  = null;
+let driveAccessToken  = null;
+let driveUserInfo     = null;
+let drivePickerInited = false;
+let driveGapiInited   = false;
+
+function initGoogleDrive() {
+  gapi.load('picker', () => { drivePickerInited = true; });
+  gapi.load('client', async () => {
+    await gapi.client.init({ apiKey: GOOGLE_API_KEY, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] });
+    driveGapiInited = true;
+  });
+  driveTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE + ' https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    callback: async (resp) => {
+      if (resp.error) { console.error(resp); return; }
+      driveAccessToken = resp.access_token;
+      await fetchDriveUserInfo();
+      updateSigninBar(true);
+    }
+  });
+}
+
+async function handleDriveAuth() {
+  if (driveAccessToken) {
+    // Sign out
+    google.accounts.oauth2.revoke(driveAccessToken, () => {});
+    driveAccessToken = null;
+    driveUserInfo = null;
+    updateSigninBar(false);
+  } else {
+    driveTokenClient.requestAccessToken({ prompt: 'consent' });
+  }
+}
+
+async function fetchDriveUserInfo() {
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + driveAccessToken }
+    });
+    driveUserInfo = await r.json();
+  } catch(e) {}
+}
+
+function updateSigninBar(signedIn) {
+  const bar    = document.getElementById('driveSigninBar');
+  const avatar = document.getElementById('driveAvatar');
+  const name   = document.getElementById('driveUserName');
+  const email  = document.getElementById('driveUserEmail');
+  const btn    = document.getElementById('driveSignBtn');
+  if (signedIn && driveUserInfo) {
+    bar.classList.add('signed-in');
+    const initials = ((driveUserInfo.given_name||'?')[0] + (driveUserInfo.family_name||'?')[0]).toUpperCase();
+    avatar.textContent = initials;
+    avatar.style.background = 'var(--success)';
+    name.textContent  = driveUserInfo.name || 'Signed in';
+    email.textContent = driveUserInfo.email || '';
+    btn.innerHTML = '✕ Sign out';
+    btn.classList.add('signout');
+    // Enable all upload buttons
+    document.querySelectorAll('.upload-btn').forEach(b => b.disabled = false);
+  } else {
+    bar.classList.remove('signed-in');
+    avatar.textContent = 'G';
+    avatar.style.background = 'var(--blue)';
+    name.textContent  = 'Sign in with Google';
+    email.textContent = 'To upload files to your Drive and auto-fill links';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign in with Google`;
+    btn.classList.remove('signout');
+    document.querySelectorAll('.upload-btn').forEach(b => b.disabled = true);
+  }
+}
+
+function openDrivePicker(docIndex) {
+  if (!driveAccessToken) {
+    alert('Please sign in with Google first to upload files.');
+    return;
+  }
+  if (!drivePickerInited || !driveGapiInited) {
+    alert('Google Drive is still loading. Please try again in a moment.');
+    return;
+  }
+
+  const uploadView = new google.picker.DocsUploadView()
+    .setIncludeFolders(true);
+
+  const driveView = new google.picker.DocsView()
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(false);
+
+  const picker = new google.picker.PickerBuilder()
+    .setAppId(PICKER_APP_ID)
+    .setOAuthToken(driveAccessToken)
+    .setDeveloperKey(GOOGLE_API_KEY)
+    .setCallback((data) => pickerCallback(data, docIndex))
+    .setTitle('Upload or select file for: ' + DOCS[docIndex])
+    .addView(uploadView)
+    .addView(driveView)
+    .enableFeature(google.picker.Feature.NAV_HIDDEN, false)
+    .build();
+
+  picker.setVisible(true);
+}
+
+async function pickerCallback(data, docIndex) {
+  if (data.action !== google.picker.Action.PICKED) return;
+  const file = data.docs[0];
+  const fileId = file.id;
+
+  setUploadStatus(docIndex, 'pending', '⏳ Making shareable…');
+
+  try {
+    // Make file shareable (anyone with link can view)
+    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + driveAccessToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ role: 'reader', type: 'anyone' })
+    });
+
+    const shareLink = `https://drive.google.com/file/d/${fileId}/view`;
+
+    // Auto-fill the link input
+    const linkInput = document.getElementById(`doc_link_${docIndex}`);
+    if (linkInput) linkInput.value = shareLink;
+
+    // Auto-set enclosed to Yes
+    const encSelect = document.getElementById(`doc_enc_${docIndex}`);
+    if (encSelect) encSelect.value = 'Yes';
+
+    setUploadStatus(docIndex, 'success', `✓ ${file.name}`);
+    updateDriveCell(docIndex, shareLink, file.name);
+
+  } catch(err) {
+    console.error(err);
+    setUploadStatus(docIndex, 'error', '✗ Failed to get link. Try again.');
+  }
+}
+
+function setUploadStatus(i, type, msg) {
+  const el = document.getElementById(`upload_status_${i}`);
+  if (!el) return;
+  el.className = `upload-status ${type}`;
+  el.textContent = msg;
+}
+
+function updateDriveCell(i, link, name) {
+  const cell = document.getElementById(`drive_cell_${i}`);
+  if (!cell) return;
+  cell.innerHTML = `
+    <div class="docs-upload-cell">
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="upload-btn" onclick="openDrivePicker(${i})">
+          <svg class="drive-icon" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+          Replace
+        </button>
+        <a class="drive-link" href="${link}" target="_blank" title="${name}">📎 ${name.length > 22 ? name.slice(0,22)+'…' : name}</a>
+      </div>
+    </div>`;
+}
+
 function buildDocsTable() {
   const tbody = document.getElementById('docsBody');
   DOCS.forEach((doc, i) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="color:var(--muted);font-size:12px;">${i+1}</td>
-      <td>${doc}</td>
+      <td style="color:var(--muted);font-size:12px;text-align:center;">${i+1}</td>
+      <td style="font-size:12px;font-weight:500;">${doc}</td>
       <td>
-        <select style="width:90px;" id="doc_enc_${i}">
+        <select style="width:82px;" id="doc_enc_${i}">
           <option value="">—</option>
           <option value="Yes">Yes ✓</option>
           <option value="No">No</option>
           <option value="N/A">N/A</option>
         </select>
       </td>
-      <td><input type="text" id="doc_link_${i}" placeholder="Link or ref no." style="width:100%;"/></td>`;
+      <td id="drive_cell_${i}">
+        <div class="docs-upload-cell">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button class="upload-btn" id="upload_btn_${i}" onclick="openDrivePicker(${i})" disabled title="Sign in with Google to upload">
+              <svg class="drive-icon" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+              Upload to Drive
+            </button>
+            <input type="text" id="doc_link_${i}" placeholder="Or paste link manually" style="flex:1;min-width:120px;font-size:11px;"/>
+          </div>
+          <div class="upload-status pending" id="upload_status_${i}"></div>
+        </div>
+      </td>`;
     tbody.appendChild(tr);
   });
 }
@@ -1622,7 +1887,7 @@ function buildWordDoc(data, aiNarrative) {
       <td style="padding:7px 10px;border:1px solid #C8D9EC;text-align:center;color:#888;">${i+1}</td>
       <td style="padding:7px 12px;border:1px solid #C8D9EC;">${doc.name}</td>
       <td style="padding:7px 10px;border:1px solid #C8D9EC;text-align:center;font-weight:600;color:${doc.enclosed==='Yes'?'#2D8A4E':doc.enclosed==='No'?'#C0392B':'#888'}">${doc.enclosed || '—'}</td>
-      <td style="padding:7px 12px;border:1px solid #C8D9EC;color:#555;">${doc.link || '—'}</td>
+      <td style="padding:7px 12px;border:1px solid #C8D9EC;color:#555;">${doc.link ? `<a href="${doc.link}" style="color:#2E75B6;">${doc.link.includes('drive.google') ? '📎 Google Drive File' : doc.link}</a>` : '—'}</td>
     </tr>`).join('');
 
   const html = `
@@ -1830,6 +2095,13 @@ function confirmReset() {
 
 // ─── START ──────────────────────────────────────────────────
 init();
+
+// Load Google APIs
+window.onload = () => {
+  if (typeof gapi !== 'undefined') {
+    gapi.load('picker:client', initGoogleDrive);
+  }
+};
 </script>
 </body>
 </html>
