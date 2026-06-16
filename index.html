@@ -760,29 +760,34 @@
       <div class="card">
         <div class="card-title">Event Details</div>
         <div class="card-body col2">
-          <div class="field full"><label>Event Title <span class="req">*</span></label><input type="text" id="eventTitle" placeholder="Full name of the event"/></div>
-          <div class="field full"><label>Theme of the Event</label><input type="text" id="eventTheme" placeholder="e.g. Innovation for Sustainable Futures"/></div>
+          <div class="field full"><label>Title of the Event <span class="req">*</span></label><input type="text" id="eventTitle" placeholder="Full name of the event"/></div>
           <div class="field full">
-            <label>Event Type <span class="req">*</span></label>
+            <label>Type or Category of the Event <span class="req">*</span></label>
             <select id="eventType">
               <option value="">- Select -</option>
               <option>Guest Lecture</option>
-              <option>Workshop</option>
+              <option>Workshop/Training</option>
               <option>Seminar / Webinar</option>
               <option>Conference</option>
               <option>Student Training/Orientation</option>
-              <option>Internship&Placement</option>
+              <option>Faculty Training/Orientation</option>
+              <option>Internship & Placement</option>
+              <option>Career Development Program</option>
+              <option>Student Development Program</option>
               <option>Counselling</option>
               <option>Faculty Development Programme (FDP)</option>
               <option>Cultural Festival</option>
               <option>Sports Event</option>
-              <option>Community Outreach / UBA</option>
+              <option>Socio Community Engagement and Outreach Activity</option>
               <option>Industry Visit</option>
               <option>Awareness Campaign</option>
               <option>Technical Fest / Exhibition</option>
-              <option>Alumni Interaction</option>
+              <option>Alumni Connect</option>
+              <option>IKS Related Activity</option>
+              <option>UGC Related Activity</option>
               <option>Skill Development Programme</option>
-              <option>Other</option>
+              <option>Conclave/Symposium</option>
+              <option>Others</option>
             </select>
           </div>
           <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="startDate"/></div>
@@ -811,10 +816,10 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Participant Count</div>
+        <div class="card-title">Details of the Participants</div>
         <div class="card-body col3">
           <div class="field"><label>Students</label><input type="number" id="studentsCount" placeholder="0" min="0"/></div>
-          <div class="field"><label>Faculty</label><input type="number" id="facultyCount" placeholder="0" min="0"/></div>
+          <div class="field"><label>Faculty(In-house)</label><input type="number" id="facultyCount" placeholder="0" min="0"/></div>
           <div class="field"><label>Non-Teaching Staff</label><input type="number" id="ntStaffCount" placeholder="0" min="0"/></div>
           <div class="field"><label>Participants from Other Institutions</label><input type="text" id="externalCount" placeholder="Count and institution names"/></div>
           <div class="field"><label>Target Audience</label>
@@ -856,11 +861,11 @@
       <div class="card">
         <div class="card-body">
           <div class="field">
-            <label>Objectives of the Event <span class="req">*</span><span class="hint">State 3-5 clear objectives</span></label>
+            <label>Objectives/Theme of the Event <span class="req">*</span><span class="hint">State 3-5 clear objectives</span></label>
             <textarea id="objectives" rows="4" placeholder="1. To expose students to current industry practices...&#10;2. To foster interaction between academia and professionals..."></textarea>
           </div>
           <div class="field">
-            <label>Detailed Event Report <span class="req">*</span><span class="hint">Describe preparation, proceedings, and chronological flow</span></label>
+            <label>Summary of the Event <span class="req">*</span><span class="hint">Describe preparation, proceedings, and chronological flow</span></label>
             <textarea id="detailedReport" rows="9" placeholder="The event commenced at 10:00 AM with an inaugural address by..."></textarea>
             <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="wordCount">Words: 0</div>
           </div>
@@ -881,7 +886,7 @@
     </div>
 
     <!-- SECTION 4: LEARNING OUTCOMES -->
-    <div class="step-section" id="step4">
+   <!-- <div class="step-section" id="step4">
       <div class="section-header">
         <span class="section-tag">Section D</span>
         <div class="section-title">Learning Outcomes, Course Outcomes & Programme Outcomes</div>
@@ -944,10 +949,10 @@
         <button class="btn-nav btn-prev" onclick="goTo(3)">&lt; Event Description</button>
         <button class="btn-nav btn-next" onclick="goTo(5)">NAAC Attributes &gt;</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- SECTION 5: NAAC ATTRIBUTES -->
-    <div class="step-section" id="step5">
+    <!-- <div class="step-section" id="step5">
       <div class="section-header">
         <span class="section-tag">Section E</span>
         <div class="section-title">NAAC Attribute Alignment</div>
@@ -973,7 +978,7 @@
         <button class="btn-nav btn-prev" onclick="goTo(4)">&lt; Learning Outcomes</button>
         <button class="btn-nav btn-next" onclick="goTo(6)">Impact Assessment &gt;</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- SECTION 6: IMPACT -->
     <div class="step-section" id="step6">
@@ -1063,10 +1068,10 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title">Principal / Dean / Director Approval</div>
+        <div class="card-title">Approved by Dean / Director</div>
         <div class="card-body">
           <div class="sig-block">
-            <label>Principal / Dean / Director Approval</label>
+            <label>Approved by Dean / Director </label>
             <input type="text" id="sigPrincipal" placeholder="Name and designation"/>
           </div>
         </div>
@@ -1130,7 +1135,6 @@ const DOCS = [
   "Geo-tagged Photographs (min. 4)",
   "Photographs without caption (min. 2)",
   "Participant Feedback Forms / Survey",
-  "Feedback Analysis Summary",
   "Certificate of Participation (template)",
   "MoU / Collaboration Document",
   "Media Coverage / Press Release",
@@ -1185,7 +1189,7 @@ function addSpeaker(data = {}) {
     <div class="card-body col2" style="padding:0;">
       <div class="field"><label>Name</label><input type="text" class="speaker-name" placeholder="Full name" value="${data.name || ''}"/></div>
       <div class="field"><label>Designation</label><input type="text" class="speaker-desig" placeholder="e.g. Senior Data Scientist" value="${data.desig || ''}"/></div>
-      <div class="field"><label>Organisation / Institution</label><input type="text" class="speaker-org" placeholder="Current employer or institution" value="${data.org || ''}"/></div>
+      <div class="field"><label>Organisation / Institution and place of work</label><input type="text" class="speaker-org" placeholder="Current employer or institution" value="${data.org || ''}"/></div>
       <div class="field"><label>Topic / Title of Session</label><input type="text" class="speaker-topic" placeholder="Title of talk or presentation" value="${data.topic || ''}"/></div>
     </div>`;
   container.appendChild(card);
