@@ -2080,12 +2080,6 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Principal / Dean / Director</td><td class="val">${d.sigPrincipal || '—'}</td></tr>
 </table>
 
-<div class="footer-note">
-  <strong>IQAC Note:</strong> This report is aligned to NAAC's Binary Accreditation Framework (10 Attributes). 
-  All supporting documents must be uploaded to the institutional repository / MIS portal for DVV verification. 
-  Geo-tagged photographs are mandatory. Reports should include feedback analysis and required supporting documents.
-</div>
-
 </body></html>`;
 
   return new Blob([html], { type: 'application/msword' });
