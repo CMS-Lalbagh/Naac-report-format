@@ -881,11 +881,11 @@
       </div>
       <div class="nav-bar">
         <button class="btn-nav btn-prev" onclick="goTo(2)">&lt; Participation</button>
-        <button class="btn-nav btn-next" onclick="goTo(4)">Learning Outcomes &gt;</button>
+        <button class="btn-nav btn-next" onclick="goTo(4)">Impact Assessment &gt;</button>
       </div>
     </div>
 
-    <!-- SECTION 4: LEARNING OUTCOMES
+    <!-- SECTION 4: LEARNING OUTCOMES (COMMENTED OUT — code retained, not displayed)
    <div class="step-section" id="step4">
       <div class="section-header">
         <span class="section-tag">Section D</span>
@@ -950,8 +950,9 @@
         <button class="btn-nav btn-next" onclick="goTo(5)">NAAC Attributes &gt;</button>
       </div>
     </div>
+    END SECTION 4 -->
 
-    <!-- SECTION 5: NAAC ATTRIBUTES
+    <!-- SECTION 5: NAAC ATTRIBUTES (COMMENTED OUT — code retained, not displayed)
     <div class="step-section" id="step5">
       <div class="section-header">
         <span class="section-tag">Section E</span>
@@ -976,12 +977,13 @@
 
       <div class="nav-bar">
         <button class="btn-nav btn-prev" onclick="goTo(4)">&lt; Learning Outcomes</button>
-        <button class="btn-nav btn-next" onclick="goTo(6)">Impact Assessment &gt;</button>
+        <button class="btn-nav btn-next" onclick="goTo(4)">Impact Assessment &gt;</button>
       </div>
     </div>
+    END SECTION 5 -->
 
     <!-- SECTION 6: IMPACT -->
-    <div class="step-section" id="step6">
+    <div class="step-section" id="step4">
       <div class="section-header">
         <span class="section-tag">Section E</span>
         <div class="section-title">Impact Assessment & Quality Indicators</div>
@@ -997,13 +999,13 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(5)">&lt; NAAC Attributes</button>
-        <button class="btn-nav btn-next" onclick="goTo(7)">Feedback Summary &gt;</button>
+        <button class="btn-nav btn-prev" onclick="goTo(3)">&lt; Event Description</button>
+        <button class="btn-nav btn-next" onclick="goTo(5)">Feedback Summary &gt;</button>
       </div>
     </div>
 
     <!-- SECTION 7: FEEDBACK -->
-    <div class="step-section" id="step7">
+    <div class="step-section" id="step5">
       <div class="section-header">
         <span class="section-tag">Section F</span>
         <div class="section-title">Feedback Summary & Analysis</div>
@@ -1020,13 +1022,13 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(6)">&lt; Impact</button>
-        <button class="btn-nav btn-next" onclick="goTo(8)">Documents Checklist &gt;</button>
+        <button class="btn-nav btn-prev" onclick="goTo(4)">&lt; Impact</button>
+        <button class="btn-nav btn-next" onclick="goTo(6)">Documents Checklist &gt;</button>
       </div>
     </div>
 
     <!-- SECTION 8: DOCUMENTS CHECKLIST -->
-    <div class="step-section" id="step8">
+    <div class="step-section" id="step6">
       <div class="section-header">
         <span class="section-tag">Section G</span>
         <div class="section-title">Supporting Documents & Evidence Checklist</div>
@@ -1047,13 +1049,13 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(7)">&lt; Feedback</button>
-        <button class="btn-nav btn-next" onclick="goTo(9)">Approval & Sign-off &gt;</button>
+        <button class="btn-nav btn-prev" onclick="goTo(5)">&lt; Feedback</button>
+        <button class="btn-nav btn-next" onclick="goTo(7)">Approval & Sign-off &gt;</button>
       </div>
     </div>
 
     <!-- SECTION 9: APPROVAL -->
-    <div class="step-section" id="step9">
+    <div class="step-section" id="step7">
       <div class="section-header">
         <span class="section-tag">Section H</span>
         <div class="section-title">Approval, Verification & Signatures</div>
@@ -1077,7 +1079,7 @@
         </div>
       </div>
       <div class="nav-bar">
-        <button class="btn-nav btn-prev" onclick="goTo(8)">&lt; Documents</button>
+        <button class="btn-nav btn-prev" onclick="goTo(6)">&lt; Documents</button>
         <button class="btn-nav btn-submit" id="submitBtn" onclick="generateReport()">Generate & Download Report</button>
       </div>
     </div>
@@ -1119,8 +1121,8 @@ const STEPS = [
   { name: "Institution & Event", desc: "Basic identification" },
   { name: "Participation & Speakers", desc: "Attendance & speakers" },
   { name: "Event Description", desc: "Narrative & content" },
-  { name: "Learning Outcomes & CO/PO", desc: "Competencies & outcomes" },
-  { name: "NAAC Attributes", desc: "Accreditation alignment" },
+  // { name: "Learning Outcomes & CO/PO", desc: "Competencies & outcomes" },  // SECTION 4 — commented out
+  // { name: "NAAC Attributes", desc: "Accreditation alignment" },             // SECTION 5 — commented out
   { name: "Impact Assessment", desc: "Impact & follow-up" },
   { name: "Feedback Summary", desc: "Observations & actions" },
   { name: "Documents Checklist", desc: "Evidence inventory" },
@@ -1452,7 +1454,7 @@ function updateProgress() {
   const pct = Math.round((currentStep / STEPS.length) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressText').textContent = `Section ${currentStep} of ${STEPS.length}`;
-  document.getElementById('quickExportBtn').disabled = currentStep < 5;
+  document.getElementById('quickExportBtn').disabled = currentStep < 3;
 }
 
 // ─── NAAC ATTRIBUTE DATA ────────────────────────────────────
