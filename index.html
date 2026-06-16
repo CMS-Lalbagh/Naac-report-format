@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>NAAC Activity Report Tool</title>
+<title>Event Report Tool</title>
 <script>
   // Simplified fast loader — no discovery docs needed, we use fetch() directly
   window._driveInitDone    = false;
@@ -677,7 +677,7 @@
     <div class="auth-logo-badge">IQAC</div>
     <div class="auth-title">Activity Report Tool</div>
     <div class="auth-inst">Center for Management Studies · Jain (Deemed-to-be) University</div>
-    <div class="auth-sub">Sign in with your Google account to access and generate NAAC activity reports.</div>
+    <div class="auth-sub">Sign in with your Google account to access and generate Event reports.</div>
 
     <!-- Google Sign-In button -->
     <button class="btn-google" id="googleSignInBtn" onclick="triggerGoogleSignIn()">
@@ -713,7 +713,7 @@
         <span class="topbar-badge">IQAC</span>
         <span class="topbar-title">Activity Report Tool</span>
       </div>
-      <div class="topbar-sub">NAAC Activity Report Format</div>
+      <div class="topbar-sub">Event Report Format</div>
     </div>
   </div>
   <div class="topbar-actions">
@@ -776,7 +776,8 @@
               <option>Student Development Program</option>
               <option>Counselling</option>
               <option>Faculty Development Programme (FDP)</option>
-              <option>Cultural/Management Festival</option>
+              <option>Cultural Festival</option>
+              <option>Management Festival</option>
               <option>Sports Event</option>
               <option>Socio Community Engagement and Outreach Activity</option>
               <option>Industry Visit</option>
@@ -821,7 +822,7 @@
           <div class="field"><label>Students</label><input type="number" id="studentsCount" placeholder="0" min="0"/></div>
           <div class="field"><label>Faculty(In-house)</label><input type="number" id="facultyCount" placeholder="0" min="0"/></div>
           <div class="field"><label>Non-Teaching Staff</label><input type="number" id="ntStaffCount" placeholder="0" min="0"/></div>
-          <div class="field"><label>Participants from Other Institutions</label><input type="text" id="externalCount" placeholder="Count and institution names"/></div>
+          <div class="field"><label>Participants from Other Institutions</label><input type="text" id="externalCount" placeholder="0"/></div>
           <div class="field"><label>Target Audience</label>
             <select id="targetAudience">
               <option value="">- Select -</option>
@@ -994,8 +995,7 @@
           <div class="field"><label>Impact on Students / Participants</label><textarea id="impactStudents" rows="3" placeholder="Describe observable changes: skills gained, motivation, awareness, behaviour shift..."></textarea></div>
           <div class="field"><label>Impact on Faculty / Institution</label><textarea id="impactFaculty" rows="3" placeholder="Curriculum enrichment, research collaboration, new industry linkage, MoU initiated..."></textarea></div>
           <div class="field"><label>Community / Societal Impact</label><textarea id="impactCommunity" rows="3" placeholder="If applicable: outreach, awareness, empowerment, public benefit..."></textarea></div>
-          <div class="field"><label>MoU / Collaboration Established</label><input type="text" id="mouDetails" placeholder="Organisation name and nature of collaboration (if any)"/></div>
-          <div class="field"><label>Recommendations / Follow-Up Actions</label><textarea id="recommendations" rows="3" placeholder="What should be done next?"></textarea></div>
+          <div class="field"><label>MoU / Collaboration Associated</label><input type="text" id="mouDetails" placeholder="Organisation name and nature of collaboration (if any)"/></div>
         </div>
       </div>
       <div class="nav-bar">
@@ -1018,7 +1018,7 @@
             <select id="feedbackMode"><option value="">- Select -</option><option>Paper Forms</option><option>Google Form</option><option>Institutional MIS Portal</option><option>Mixed</option></select>
           </div>
           <div class="field full"><label>Key Observations from Feedback</label><textarea id="feedbackObservations" rows="3" placeholder="Positive observations and suggestions received..."></textarea></div>
-          <div class="field full"><label>Corrective Actions Planned</label><textarea id="correctiveActions" rows="3" placeholder="Actions planned based on feedback..."></textarea></div>
+          <div class="field full"><label>Recommendations/Corrective Actions Planned</label><textarea id="correctiveActions" rows="3" placeholder="Actions planned based on feedback..."></textarea></div>
         </div>
       </div>
       <div class="nav-bar">
@@ -1073,7 +1073,6 @@
         <div class="card-title">Approved by Dean / Director</div>
         <div class="card-body">
           <div class="sig-block">
-            <label>Approved by Dean / Director </label>
             <input type="text" id="sigPrincipal" placeholder="Name and designation"/>
           </div>
         </div>
@@ -1089,7 +1088,7 @@
     <div class="success-screen" id="successScreen">
       <div class="success-icon">🎉</div>
       <div class="success-title">Report Ready!</div>
-      <div class="success-sub">Your NAAC Activity Report has been generated. Download it as a Word document to submit to IQAC or include in your SSR / AQAR.</div>
+      <div class="success-sub">Your Event Report has been generated. Download it as a Word document to submit to IQAC or include in your SSR / AQAR.</div>
       <div class="download-btns">
         <button class="btn-dl btn-dl-word" id="dlWordBtn">📄 Download Word (.docx)</button>
       </div>
@@ -1106,7 +1105,7 @@
   <div class="modal" id="modal">
     <div class="spinner" id="modalSpinner"></div>
     <div class="modal-title" id="modalTitle">Generating Report...</div>
-    <div class="modal-sub" id="modalSub">Claude AI is formatting your NAAC Activity Report. This usually takes 10–20 seconds.</div>
+    <div class="modal-sub" id="modalSub">Claude AI is formatting your Event Report. This usually takes 10–20 seconds.</div>
     <div class="modal-actions" id="modalActions" style="display:none;">
       <button class="btn-modal btn-modal-secondary" onclick="closeOverlay()">Close</button>
     </div>
@@ -2072,7 +2071,7 @@ function buildWordDoc(data, aiNarrative) {
   <tr><td class="lbl">Feedback Forms Collected</td><td class="val">${d.feedbackTotal || '—'}</td></tr>
   <tr><td class="lbl">Mode of Feedback</td><td class="val">${d.feedbackMode || '—'}</td></tr>
   <tr><td class="lbl">Key Observations</td><td class="val" style="white-space:pre-line;">${d.feedbackObservations || '—'}</td></tr>
-  <tr><td class="lbl">Corrective Actions</td><td class="val">${d.correctiveActions || '—'}</td></tr>
+  <tr><td class="lbl">Recommendations/Corrective Actions</td><td class="val">${d.correctiveActions || '—'}</td></tr>
 </table>
 
 <h2>SECTION I — APPROVAL &amp; VERIFICATION</h2>
